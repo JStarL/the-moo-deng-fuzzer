@@ -5,10 +5,16 @@ z5437039 - Antheo Raviel Santosa
 z5408331 - Halliya Hyeryeon UM
 
 # How to build and run the Docker container
-(Note to self)
 
 * `docker build -t comp6447-fuzzer .`
 * `docker run -it comp6447-fuzzer`
+
+## Docker command lines to use..
+```
+docker build -t $IMAGE_NAME . # build the docker image
+docker run -it $IMAGE_NAME $CONTAINER_NAME # instantiates a new container from the image and run the defautl command
+docker exec -it $CONTAINER_NAME # use an existing container and run it 
+```
 
 # Fuzzer
 

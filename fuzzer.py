@@ -1,14 +1,14 @@
-print('hello')
 import json
+from os import system
 import random
 import string
 import subprocess
-import os
+# import os
 
 # Example file paths (you'll need to replace with actual paths)
-BINARY_PATH = "binaries/binaries/json1"  # Update this with the correct path to the binary
-JSON_INPUT_FILE = "binaries/example_inputs/json1.txt"  # Single JSON input file path
-FUZZ_ROUNDS = 100  # Number of fuzzing iterations
+BINARY_PATH = "./binaries/binaries/json1"  # Update this with the correct path to the binary
+JSON_INPUT_FILE = "./binaries/example_inputs/json1.txt"  # Single JSON input file path
+FUZZ_ROUNDS = 100000  # Number of fuzzing iterations
 
 def load_json_input(file_path):
     """Load the JSON input example from a single file."""
@@ -78,4 +78,6 @@ def run_fuzzer():
         fuzz_and_test(BINARY_PATH, fuzzed_input, input_type="json")
 
 if __name__ == "__main__":
+    system("pwd")
+    system("ls ./binaries/binaries/")
     run_fuzzer()

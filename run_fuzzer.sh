@@ -21,13 +21,13 @@ echo "Deleting old fuzzer output files."
 rm 'fuzzer_output/*' 2>/dev/null
 
 echo "Docker container building..."
-podman build -t fuzzer-image .
+docker build -t fuzzer-image .
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to build podman container"
+    echo "Error: Failed to build docker container"
     exit 1
 fi
 echo "Docker container built successfully"
 
 # Run the image, mounting /binaries as read-only and /fuzzer_output
 echo "Running Fuzzer"
-podman run -v ./binaries:/binaries:ro -v ./example_inputs:/example_inputs:ro -v ./fuzzer_output:/fuzzer_output fuzzer-image
+docker run -v ./binaries:/binaries:ro -v ./example_inputs:/example_inputs:ro -v ./fuzzer_output:/fuzzer_output fuzzer-image

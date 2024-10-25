@@ -13,7 +13,7 @@ WORKDIR /app
 COPY . /app/
 
 # Ensure that harness.py is executable.
-RUN chmod +x /app/harness.py
+RUN chmod +x /app/binaries/*
 
 # Create a directory for fuzzer outputs, ignore if it already exists.
 RUN mkdir -p /app/fuzzer_output

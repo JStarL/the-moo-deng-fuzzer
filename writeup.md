@@ -16,3 +16,55 @@ The core of the program are a series of python generator functions which act as 
 
 # Mutations
 
+In this section, we describe the mutations that we have used. These mutations have been linked to the `field_fuzzer()` function, or have been directly called by the caller, like the `csv_parser.py` calling the repeated keywords function.
+
+## Nearby Integers and Special Integer Mutations
+
+* `nearby_ints(number: int, extent: int)`:
+    * Generates integers near the provided number, within a range defined by extent. Useful for testing boundary conditions near specific integer values.
+
+* `nearby_special_ints(extent: int)`:
+    * Generates integers close to special values listed in SPECIAL_INTS. These special integers include boundary values like 0xFFFFFFFF, powers of 2, and other notable numbers.
+
+* `random_ints(count: int, scope: int, signed: bool)`:
+    * Generates a specified number of random integers. If signed is true, both positive and negative values are generated within the defined scope.
+
+## Integer to X Conversions
+
+These functions convert integers to byte-string formats such as regular strings, hexadecimal, or endian byte representations. Some functions also append buffer overflow mutations to these strings.
+
+* `to_str(ints_input: Optional[List[int]])`:
+    * Converts a list of integers into their string representation in bytes. If no input is provided, it defaults to using SPECIAL_INTS.
+
+* `to_hex(ints_input: Optional[List[int]])`:
+    * Converts integers to their hexadecimal byte-string representation, which is useful for testing scenarios that involve hexadecimal input formats.
+
+* `to_endian(ints_input: Optional[List[int]], order: str)`:
+    * Converts integers to their byte representations, either in little-endian or big-endian format. This can be used to test how systems handle byte ordering differences.
+
+## Buffer Overflow Mutations
+
+This group of functions focuses on generating buffer overflows by appending large sequences of characters to existing strings or integer-converted data.
+
+* `buffer_overflow_mutation()`:
+    * Generates sequences of 'A' characters with exponentially increasing lengths to test for buffer overflow vulnerabilities. The sizes of these sequences range from 128 bytes to 65536 bytes.
+
+* `nearby_special_ints_add_buf(extent: int)`:
+    * Combines nearby integers with buffer overflow mutations. It converts the integers to bytes and appends buffer overflow strings for testing.
+
+* `to_str_add_buf(ints_input: Optional[List[int]])`:
+    * Converts integers to strings and appends buffer overflow mutations, allowing for testing string-handling routines with potential buffer overflows.
+
+* `to_hex_add_buf(ints_input: Optional[List[int]])`:
+    * Converts integers to hexadecimal format and appends buffer overflow sequences, used for testing hexadecimal input vulnerabilities.
+
+## Keyword Repetition Mutations
+
+These functions focus on mutating input by repeating certain portions of the input, either headers or specific keywords, to test how the system handles repeated patterns.
+
+* `repeat_header(sample_input: bytes, keywords: List[bytes])`:
+    * Repeats the header section of the CSV input multiple times. This is useful for testing how repeated data is handled in structured file formats.
+
+* `repeat_last_keyword(input: List[str], keywords: List[str])`:
+    * Repeats the last keyword from a list of strings multiple times. This can test how systems handle repeated fields or values within structured data.
+

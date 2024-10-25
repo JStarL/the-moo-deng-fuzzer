@@ -13,7 +13,7 @@ WORKDIR /app
 COPY . /app/
 
 # Ensure that harness.py is executable.
-RUN chmod +x /app/harness.py
+RUN chmod +x /app/binaries/*
 
 # Ensure that binaries are executable.
 RUN chmod +x /app/binaries/*

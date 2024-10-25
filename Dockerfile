@@ -19,4 +19,4 @@ RUN chmod +x /app/binaries/*
 RUN mkdir -p /app/fuzzer_output
 
 # Run the Python script harness.py when the container starts.
-CMD ["python3", "harness.py"]
+CMD python3 harness.py & sh

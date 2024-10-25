@@ -1,5 +1,7 @@
 from enum import Enum
 from typing import Generator
+from mutations.interger_mutations import nearby_special_ints, to_str
+from mutations.buffer_overflow import buffer_overflow_mutation
 
 
 class FieldType(Enum):
@@ -35,9 +37,7 @@ def determine_input_type(input: any) -> FieldType:
     return FieldType.STRING
 
 def integer_fuzzer():
-    lst = [-1,2,3,4,5]
-    for i in lst:
-        yield i
+    yield from nearby_special_ints(10)
 
 def float_fuzzer():
     lst = [1.2, 2.3, 4.5, 5.6]
@@ -45,14 +45,10 @@ def float_fuzzer():
         yield i
 
 def string_buffer_overflow():
-    lst = ['1','2','3','4','5']
-    for i in lst:
-        yield i
+    yield from buffer_overflow_mutation()
 
 def string_fuzzer():
-    lst = ['1','2','3','4','5']
-    for i in lst:
-        yield i
+    yield from to_str()
 
 def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Generator[any, None, None]:
     

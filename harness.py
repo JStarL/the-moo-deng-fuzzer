@@ -23,7 +23,6 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT') -> bool:
     '''
 
     if mode == 'TEXT':
-
         result = subprocess.run(prog_path, input=input, text=True, universal_newlines=True, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
     elif mode == 'BINARY':
@@ -31,7 +30,7 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT') -> bool:
 
     print(f'Ran program: {prog_path}, got this result: {result.returncode}')
     if result.returncode == -6 or result.returncode == -11:
-        print(f'Exploit discovered: prog_name = {prog_path}, input = {input}, mode = {mode}')
+        # print(f'Exploit discovered: prog_name = {prog_path}, input = {input}, mode = {mode}')
         return True
 
     return False
@@ -106,6 +105,7 @@ def run():
                 try:
                     csv_mod = next(fuzzer)
                 except StopIteration:
+                    print(f'Program {programs[i]} not exploited, going to next...')
                     break
 
                 # print(f'CSV Mod:\nLine 1: {csv_mod[0][:10]}\nLine 2: {csv_mod[1][:10]}\nLine 3: {csv_mod[2][:10]}\nLine 4: {csv_mod[3][:10]}')
@@ -118,8 +118,6 @@ def run():
                 if exploit_found:
                     write_bad_file(csv_string, programs[i], 'TEXT')
                     print(f'Program {programs[i]} exploited, going to next...')
-
-                if exploit_found:
                     break
 
 

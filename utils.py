@@ -54,51 +54,19 @@ def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Ge
     
     if field_type == FieldType.INTEGER:
         
-        gen = integer_fuzzer()
+        yield from integer_fuzzer()
 
-        while True:
-            try:
-                yield next(gen)
-
-            except StopIteration:
-                break
-        
-        gen = string_buffer_overflow()
-
-        while True:
-            try:
-                yield next(gen)
-            
-            except StopIteration:
-                break
+        yield from string_buffer_overflow()
 
     elif field_type == FieldType.FLOAT:
-        gen = float_fuzzer()
-
-        while True:
-            try:
-                yield str(next(gen))
-
-            except StopIteration:
-                break
+       
+        yield from float_fuzzer()
         
-        gen = string_buffer_overflow()
+        yield from string_buffer_overflow()
 
-        while True:
-            try:
-                yield next(gen)
-            
-            except StopIteration:
-                break
     elif field_type == FieldType.STRING:
-        gen = string_fuzzer()
-        while True:
-            try:
-                yield next(gen)
-            
-            except StopIteration:
-                break
-
+        
+        yield from string_fuzzer()
     
     print(f"Fuzzing {field_name} is complete")
 

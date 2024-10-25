@@ -7,9 +7,8 @@ def read_json_input(filename: str) -> None:
     with open(filename, 'r') as f:
         json_string = f.read()
     
-    print('File Contents:\n', json_string)
+    # print('File Contents:\n', json_string)
 
-    global json_input
     try:
         json_input = json.loads(json_string)
         return json_input

@@ -1,16 +1,22 @@
-FROM alpine:latest
+# Start from a default Ubuntu image.
+FROM ubuntu:22.04
 
-RUN apk update && apk upgrade && apk add --no-cache \
+# Update the package list and install Python3 and virtualenv.
+RUN apt update && apt upgrade -y && apt install -y \
     python3 \
-    py3-virtualenv \
-    libc6-compat
+    python3-venv
 
-RUN mkdir /app
-
+# Set the working directory inside the container.
 WORKDIR /app
 
-COPY fuzzer.py fuzzer.py
-COPY binaries binaries
-RUN chmod +x binaries/binaries/*
+# Copy the entire project directory (including harness.py) to the container.
+COPY . /app/
 
-CMD python3 fuzzer.py
+# Ensure that harness.py is executable.
+RUN chmod +x /app/harness.py
+
+# Create a directory for fuzzer outputs, ignore if it already exists.
+RUN mkdir -p /app/fuzzer_output
+
+# Run the Python script harness.py when the container starts.
+CMD ["python3", "harness.py"]

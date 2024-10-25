@@ -1,1 +1,1 @@
-{"len": 2147483648, "input": "AAA", "more_data": ["a", "bb"]}
+{"len": -1, "input": "AAA", "more_data": ["a", "bb"]}

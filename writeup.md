@@ -15,7 +15,7 @@ z5408331 - Halliya Hyeryeon UM
 ## Docker command lines to use..
 ```
 docker build -t $IMAGE_NAME . # build the docker image
-docker run -it $IMAGE_NAME $CONTAINER_NAME # instantiates a new container from the image and run the defautl command
+docker run -it $IMAGE_NAME $CONTAINER_NAME # instantiates a new container from the image and run the default command
 docker exec -it $CONTAINER_NAME # use an existing container and run it 
 ```
 

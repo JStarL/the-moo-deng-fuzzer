@@ -1,3 +1,8 @@
+# Authors
+z5280740 - Jibitesh Saha
+z5441928 - Li Li
+z5437039 - Antheo Raviel Santosa
+z5408331 - Halliya Hyeryeon UM
 
 # Fuzzer
 

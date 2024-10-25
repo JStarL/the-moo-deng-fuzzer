@@ -7,8 +7,8 @@ import subprocess
 from enum import Enum
 from typing import List
 
-programs = ['./binaries/binaries/json1', './binaries/binaries/csv1']
-inputs = ['./binaries/example_inputs/json1.txt', './binaries/example_inputs/csv1.txt']
+programs = ['./binaries/json1', './binaries/csv1']
+inputs = ['./example_inputs/json1.txt', './example_inputs/csv1.txt']
 
 
 class FileType(Enum):
@@ -47,7 +47,7 @@ def write_csv_string(data: List[List[str]]) -> str:
 
 def write_bad_file(input: str | bytes, prog_path: str, mode: str = 'TEXT') -> None:
     # Write to file
-    bad_filename = './binaries/bad_inputs/bad_' + prog_path.split('/')[-1] + ('.txt' if mode == 'TEXT' else '.bin')
+    bad_filename = './fuzzer_output/bad_' + prog_path.split('/')[-1] + ('.txt' if mode == 'TEXT' else '.bin')
     if mode == 'TEXT':
         with open(bad_filename, 'w') as f:
             f.write(input)

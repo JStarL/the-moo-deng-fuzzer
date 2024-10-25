@@ -4,6 +4,12 @@ z5441928 - Li Li
 z5437039 - Antheo Raviel Santosa
 z5408331 - Halliya Hyeryeon UM
 
+# How to build and run the Docker container
+(Note to self)
+
+* `docker build -t comp6447-fuzzer .`
+* `docker run -it comp6447-fuzzer`
+
 # Fuzzer
 
 The fuzzer designed so far is an inital attempt at creating an appropriate, extensible infrastructure which can be used to create a full fledge black box testing system. It is elementary, in the sense that there are a few mutations elaborated on under the *Mutations* section below, and it only caters to JSON and CSV files, as per the requirements of the Mid-point checkin.

@@ -9,8 +9,9 @@ RUN mkdir /app
 
 WORKDIR /app
 
-COPY fuzzer.py fuzzer.py
+COPY *.py .
+COPY mutations mutations
 COPY binaries binaries
-RUN chmod +x binaries/binaries/*
+RUN chmod +x /app/binaries/binaries/*
 
 CMD python3 fuzzer.py

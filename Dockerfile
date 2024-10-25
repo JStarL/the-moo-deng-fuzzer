@@ -12,9 +12,6 @@ WORKDIR /app
 # Copy the entire project directory (including harness.py) to the container.
 COPY . /app/
 
-# Ensure that harness.py is executable.
-RUN chmod +x /app/binaries/*
-
 # Ensure that binaries are executable.
 RUN chmod +x /app/binaries/*
 

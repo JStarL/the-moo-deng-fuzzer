@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Ensure the binaries folder exists.
 if [ ! -d "binaries" ]; then

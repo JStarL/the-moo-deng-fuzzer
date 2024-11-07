@@ -4,7 +4,8 @@ FROM ubuntu:22.04
 # Update the package list and install Python3 and virtualenv.
 RUN apt update && apt upgrade -y && apt install -y \
     python3 \
-    python3-venv
+    python3-venv \
+    python3-pil
 
 # Set the working directory inside the container.
 WORKDIR /app

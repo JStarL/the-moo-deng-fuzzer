@@ -4,6 +4,10 @@ SPECIAL_INTS: list[int] = list({
     0x7FFFFFFF,  # Max signed 32-bit integer (2^31 - 1)
     0x80000000,  # Min signed 32-bit integer (-2^31)
 
+    # 64-bit specific edge cases
+    0xFFFFFFFFFFFFFFFF,  # Max unsigned 64-bit integer (2^64 - 1)
+    0x7FFFFFFFFFFFFFFF,  # Max signed 64-bit integer (2^63 - 1)
+    0x8000000000000000,  # Min signed 64-bit integer (-2^63)
     # Edge case values
     0,  # Zero
     -1,  # Negative one
@@ -13,11 +17,15 @@ SPECIAL_INTS: list[int] = list({
     0xFFFFFFFE,  # Just below UINT_MAX for 32-bit
     0x7FFFFFFE,  # Just below INT_MAX for 32-bit
 
+    # Large numbers near the limits of 64-bit integers
+    0xFFFFFFFFFFFFFFFE,  # Just below UINT_MAX for 64-bit
+    0x7FFFFFFFFFFFFFFE,  # Just below INT_MAX for 64-bit
+
     # Powers of 2 for 32-bit integers
-    *(2 ** i for i in range(1, 32)),
+    *(2 ** i for i in range(1, 64)),
 
     # Negative powers of 2 for 32-bit integers
-    *(-(2 ** i) for i in range(1, 32)),
+    *(-(2 ** i) for i in range(1, 64)),
 
     # Random special numbers
     314159265,  # Pi approximation

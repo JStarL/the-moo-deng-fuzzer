@@ -43,7 +43,9 @@ def set_jpeg_meta_field(img, meta_key, meta_value):
     return img
 
 def read_jpg_file(filepath):
-    return Image.open(filepath)
+    with open(filepath, 'rb') as f:
+        img_bin = f.read()
+        return Image.open(io.BytesIO(img_bin))
 
 def process_jpeg(img):
 

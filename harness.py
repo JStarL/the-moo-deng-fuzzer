@@ -19,6 +19,7 @@ class FileType(Enum):
     JSON = 'json'
     CSV = 'csv'
     JPEG = 'jpeg'
+    XML = 'xml'
     NULL = 'null'
 
 
@@ -71,7 +72,7 @@ def write_bad_file(input: str | bytes, prog_path: str, mode: str = 'TEXT') -> No
 
 def determine_file_type(filepath: str) -> FileType:
     
-    types = [FileType.JSON, FileType.CSV, FileType.JPEG]
+    types = [FileType.JSON, FileType.CSV, FileType.JPEG, FileType.XML]
 
     for type in types:
         try:
@@ -94,6 +95,12 @@ def determine_file_type(filepath: str) -> FileType:
                 if any(len(row) != field_count for row in data):
                     raise Exception
                 return FileType.CSV
+            elif type == FileType.XML:
+                f = open(filepath, 'r')
+                file_string = f.read()
+                # xml.loads(file_string) # also import 
+                return FileType.XML
+
 
         except:
             continue
@@ -200,6 +207,10 @@ def run():
                         complete = True
                         break
                 if complete: break
+
+            elif file_type == FileType.XML:
+                
+
 
 
 # The main entry point for execution

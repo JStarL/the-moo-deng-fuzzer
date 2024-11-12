@@ -4,7 +4,96 @@ import io
 import random
 import copy
 from utils import FieldType, determine_input_type, field_fuzzer
+from typing import Iterator
 
+MARKERS = {
+    "Image Start": 0xFFD8.to_bytes(2, byteorder='big'),
+    "Default Header": 0xFFE0.to_bytes(2, byteorder="big"),
+    "Quantization Table": 0xFFDB.to_bytes(2, byteorder="big"),
+    "Frame Start": 0xFFC0.to_bytes(2, byteorder="big"),
+    "Huffman Table": 0xFFC4.to_bytes(2, byteorder="big"),
+    "Scan Start": 0xFFDA.to_bytes(2, byteorder="big"),
+    "Image End": 0xFFD9.to_bytes(2, byteorder="big")
+}
+
+def byte_flip_mutation(data):
+    pass
+
+def header_mutator(img_bin):
+    header = MARKERS["Default Header"]
+    quanitzation = MARKERS["Quantization Table"]
+
+    return mutate_region(img_bin, start_marker=header, end_marker=quanitzation)
+
+def qt_mutator(img_bin):
+    quanitzation = MARKERS["Quantization Table"]
+    frame_start = MARKERS["Frame Start"]
+
+    return mutate_region(img_bin, start_marker=quanitzation, end_marker=frame_start)
+
+def frame_mutator(img_bin):
+    frame_start = MARKERS["Frame Start"]
+    huffman = MARKERS["Huffman Table"]
+
+    return mutate_region(img_bin, start_marker=frame_start, end_marker=huffman)
+
+def huffman_mutator(img_bin):
+    huffman = MARKERS["Huffman Table"]
+    scan_start = MARKERS["Scan Start"]
+
+    return mutate_region(img_bin, start_marker=huffman, end_marker=scan_start)
+
+def image_content_mutator(img_bin):
+    scan_start = MARKERS["Scan Start"]
+    image_end = MARKERS["Image End"]
+
+    return mutate_region(img_bin, start_marker=scan_start, end_marker=image_end)
+
+def mutate_region(img_bytes: bytes, start_marker: bytes, end_marker: bytes) -> Iterator[bytes]:
+
+    before_region = img_bytes.split(start_marker)[0]
+
+    region = img_bytes.split(start_marker)[1]
+    region = region.split(end_marker)[0]
+
+    after_region = img_bytes.split(end_marker)[1]
+
+    byte_flipper = byte_flip_mutation(region)
+
+    try:
+        while True:
+            mutated_region = next(byte_flipper)
+            yield before_region + start_marker + mutated_region + end_marker + after_region
+    except StopIteration:
+        print(f'Tried all byte flip mutations for jpeg')
+        raise StopIteration
+
+def jpeg_fuzz_processor(img, img_exif_types):
+    img_byte_arr = io.BytesIO()
+    img.save(img_byte_arr, format=img.format)
+    img_bin = img_byte_arr.getvalue()
+
+    mutators = []
+    mutators.append(header_mutator(img_bin))
+    mutators.append(qt_mutator(img_bin))
+    mutators.append(frame_mutator(img_bin))
+    mutators.append(huffman_mutator(img_bin))
+    mutators.append(image_content_mutator(img_bin))
+
+    i = 0
+
+    while len(mutators) > 0:
+        if i >= len(mutators):
+            i = 0
+
+        try:
+            mod_img_bin = next(mutators[i])
+            yield mod_img_bin
+        except StopIteration:
+            mutators.pop(i)
+            continue
+
+        i += 1
 
 
 def get_jpeg_meta(img):
@@ -63,6 +152,15 @@ def read_jpg_file(filepath):
     with open(filepath, 'rb') as f:
         img_bin = f.read()
         img = Image.open(io.BytesIO(img_bin))
+
+
+        # img_byte_arr = io.BytesIO()
+        # img.save(img_byte_arr, format=img.format)
+        # img_binary_data = img_byte_arr.getvalue()
+
+        # first_10_bytes = img_binary_data[-10:]
+        # print(hex(int.from_bytes(first_10_bytes, byteorder='big')))
+
         return img
 
 def process_jpeg(img):
@@ -74,7 +172,7 @@ def process_jpeg(img):
     
     return jpeg_type
 
-def jpeg_fuzz_processor(img, img_exif_types):
+def jpeg_fuzz_processor_old(img, img_exif_types):
     
     jpeg_input = get_jpeg_meta(img)
 

@@ -2,10 +2,6 @@ from typing import Iterator, List, Optional
 import random
 from .special_values import SPECIAL_INTS
 from .buffer_overflow import buffer_overflow_mutation
-<<<<<<<< HEAD:mutations/integer_mutations.py
-
-========
->>>>>>>> origin:mutations/interger_mutations.py
 
 def nearby_ints(number: int, extent: int) -> Iterator[int]:
     """Generates integers near the given number within the specified extent.

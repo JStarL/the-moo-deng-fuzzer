@@ -53,8 +53,18 @@ def write_csv_string(data: List[List[str]]) -> str:
     return output.getvalue()
 
 def write_jpeg_input(img_mod) -> bytes:
+    # try:
+    #     return img_mod.tobytes()
+    # except:
+    #     print("Couldn't convert image to bytes")
+    #     return b'None'
+    
     img_byte_arr = io.BytesIO()
-    img_mod.save(img_byte_arr, format='JPEG')
+    try:
+        img_mod.save(img_byte_arr, format='JPEG')
+    except:
+        print("Couldn't save img")
+        return b'None'
     img_byte_arr = img_byte_arr.getvalue()
     return img_byte_arr
 

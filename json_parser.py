@@ -7,9 +7,8 @@ def read_json_input(filename: str) -> None:
     with open(filename, 'r') as f:
         json_string = f.read()
     
-    print('File Contents:\n', json_string)
+    # print('File Contents:\n', json_string)
 
-    global json_input
     try:
         json_input = json.loads(json_string)
         return json_input
@@ -40,7 +39,7 @@ def json_fuzz_processor(json_input: Dict, json_type: Dict) -> Generator[Dict, No
             i = 0
         
         try:
-            json_input[keys_list[0]] = next(generators[i])
+            json_input[keys_list[i]] = next(generators[i])
             yield json_input
         except StopIteration:
             generators.pop(i)
@@ -48,10 +47,3 @@ def json_fuzz_processor(json_input: Dict, json_type: Dict) -> Generator[Dict, No
             i -= 1
 
         i += 1
-
-# def sample():
-
-#     lst = [i for i in range(5)]
-
-#     for i in lst:
-#         yield i

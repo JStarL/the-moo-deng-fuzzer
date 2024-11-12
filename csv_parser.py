@@ -26,19 +26,19 @@ def process_csv(csv_ds: List[List[str]]) -> List[List[FieldType]]:
 
 def csv_fuzz_processor(csv_input: List[List[str]], csv_type: List[List[FieldType]]) -> Iterator[List[List[str]]]:
     
-    csv_input_start = copy.deepcopy(csv_input)
+    csv_input_curr = copy.deepcopy(csv_input)
     # Try row based fuzzing before trying each element fuzzing
-    for i, row in enumerate(csv_input):
+    for i, row in enumerate(csv_input_curr):
         gen = repeat_last_keyword(row, row)
         while True:
             try:
                 new_row = next(gen)
             except StopIteration:
                 break
-            csv_input[i] = new_row
-            yield csv_input
+            csv_input_curr[i] = new_row
+            yield csv_input_curr
 
-    csv_input_curr = copy.deepcopy(csv_input_start)
+    csv_input_curr = copy.deepcopy(csv_input)
 
     print('Testing Field Fuzzer')
 
@@ -68,7 +68,3 @@ def csv_fuzz_processor(csv_input: List[List[str]], csv_type: List[List[FieldType
             j += 1
         
         i += 1
-
-    
-
-print(read_csv_file('./binaries/example_inputs/csv1.txt'))

@@ -1,109 +1,81 @@
-from json_parser import read_json_input, process_json, json_fuzz_processor
-from csv_parser import read_csv_file, process_csv, csv_fuzz_processor
 import json
+from os import system
+import random
+import string
 import subprocess
-from enum import Enum
-from sample_gen.csv_generator import csv_key_hunter
+# import os
 
-# programs = ['./binaries/binaries/json1', './binaries/binaries/csv1']
-# inputs = ['./binaries/example_inputs/json1.txt', './binaries/example_inputs/csv1.txt']
-programs = ['./binaries/binaries/csv1']
-inputs = ['./binaries/example_inputs/csv1.txt']
+# Example file paths (you'll need to replace with actual paths)
+BINARY_PATH = "/binaries/json1"  # Update this with the correct path to the binary
+JSON_INPUT_FILE = "/binaries/example_inputs/json1.txt"  # Single JSON input file path
+FUZZ_ROUNDS = 100000  # Number of fuzzing iterations
 
+def load_json_input(file_path):
+    """Load the JSON input example from a single file."""
+    with open(file_path, 'r') as f:
+        return json.load(f)
 
-class FileType(Enum):
-    JSON = 'json'
-    CSV = 'csv'
+def mutate_json(input_data):
+    """Mutate the JSON input data."""
+    mutated_data = input_data.copy()
 
+    # Mutate 'len' field
+    if 'len' in mutated_data:
+        mutated_data['len'] = random.randint(0, 100)
 
-def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT') -> bool:
-    '''
-    True -> Exploit discovered
-    False otherwise
-    '''
+    # Mutate 'input' field by adding random characters if it exists
+    if 'input' in mutated_data:
+        mutated_data['input'] = ''.join(random.choices(string.ascii_letters + string.digits, k=mutated_data.get('len', 10)))
 
-    if mode == 'TEXT':
+    # Mutate 'more_data' field by changing or adding new random strings if it exists
+    if 'more_data' in mutated_data:
+        mutated_data['more_data'] = [random.choice(string.ascii_lowercase) * random.randint(1, 5) for _ in range(random.randint(1, 5))]
 
-        result = subprocess.run(prog_path, input=input, text=True, universal_newlines=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-    elif mode == 'BINARY':
-        result = subprocess.run(prog_path, input=input, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return mutated_data
 
-    if result.returncode == -6 or result.returncode == -11:
-        print(f'Exploit discovered: prog_name = {prog_path}, input = {input}, mode = {mode}')
-        return True
+def fuzz_and_test(binary_path, input_data, input_type="json"):
+    """Run the binary with fuzzed inputs and capture results."""
 
-    return False
+    if input_type == "json":
+        # Serialize the JSON input
+        input_str = json.dumps(input_data)
+        print('input_str', input_str)
 
-
-def write_bad_file(input: str | bytes, prog_path: str, mode: str = 'TEXT') -> None:
-    # Write to file
-    bad_filename = './binaries/bad_inputs/bad_' + prog_path.split('/')[-1] + ('.txt' if mode == 'TEXT' else '.bin')
-    if mode == 'TEXT':
-        with open(bad_filename, 'w') as f:
-            f.write(input)
-    else:
-        with open(bad_filename, 'wb') as f:
-            f.write()
-
-
-def determine_file_type(filepath: str) -> FileType:
-    with open(filepath, 'r') as f:
-        file_string = f.read()
-
+    # Run the binary with the fuzzed input and capture output
     try:
-        json.loads(file_string)
-        return FileType.JSON
-    except:
-        return FileType.CSV
+        result = subprocess.run([binary_path], input=input_str, capture_output=True, text=True, timeout=5)
+        output = result.stdout
+        error = result.stderr
 
+        if result.returncode != 0:
+            error_filename = f"bad_{input_type}.txt"
 
-for i, program in enumerate(programs):
-    file_type = determine_file_type(inputs[i])
-    exploit_found = False
-    while True:
+            print(f"Error: Binary crashed or returned error with input: {input_data}")
+            print(f"Error Output: {error}")
 
-        if file_type == FileType.JSON:
+            # Write the crashing input to a file for further analysis
+            with open(error_filename, "a") as crash_file:
+                crash_file.write(f"Input Data: {json.dumps(input_data)}\n")
+                crash_file.write(f"Error Output: {error}\n\n")
+        else:
+            pass
+            # print(f"Binary executed successfully with input: {input_data}")
+            # print(f"Output: {output}")
 
-            json_input = read_json_input(inputs[i])
-            json_type = process_json(json_input)
-            gen = json_fuzz_processor(json_input, json_type)
+    except subprocess.TimeoutExpired:
+        print(f"Timeout: Binary took too long to process input: {input_data}")
 
-            try:
-                json_mod = next(gen)
-            except StopIteration:
-                print(f'Program {programs[i]} not exploited, going to next...')
-                break
+def run_fuzzer():
+    """Main fuzzer loop."""
+    # Load the single example input from the specified file
+    example_input = load_json_input(JSON_INPUT_FILE)
 
-            # print('json_mod:', json_mod)
-            json_string = json.dumps(json_mod)
+    for _ in range(FUZZ_ROUNDS):
+        # Mutate the input
+        fuzzed_input = mutate_json(example_input)
 
-            exploit_found = run_program(programs[i], json_string, mode='TEXT')
-            if exploit_found:
-                write_bad_file(json_string, programs[i], 'TEXT')
-                print(f'Program {programs[i]} exploited, going to next...')
+        # Test the binary with the fuzzed input
+        fuzz_and_test(BINARY_PATH, fuzzed_input, input_type="json")
 
-            if exploit_found:
-                break
-
-        elif file_type == FileType.CSV:
-            sample_inputs = b"header,must,stay,intact\na,b,c,S\ne,f,g,ecr\ni,j,k,et"
-            gen = csv_key_hunter(sample_input=sample_inputs)
-            print("len is ", len(list(gen)))
-
-            try:
-                csv_mod = next(gen)
-                print('csv_mod is ', csv_mod)
-            except StopIteration:
-                break
-
-            exploit_found = run_program(programs[i], csv_mod, mode='TEXT')
-            if exploit_found:
-                write_bad_file(csv_mod, programs[i], 'TEXT')
-                print(f'Program {programs[i]} exploited, going to next...')
-
-            if exploit_found:
-                break
-
-            # print(f'CSV Mod:\nLine 1: {csv_mod[0][:10]}\nLine 2: {csv_mod[1][:10]}\nLine 3: {csv_mod[2][:10]}\nLine 4: {csv_mod[3][:10]}')
-
+if __name__ == "__main__":
+    run_fuzzer()

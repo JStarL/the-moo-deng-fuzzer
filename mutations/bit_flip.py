@@ -9,7 +9,7 @@ def bit_flip(data: bytes) -> Iterator[bytes]:
     for byte_index in range(len(data)):
         for bit_index in range(8):
             mutated_data = bytearray(data)
-            mutated_data[byte_index] ^= (1 << bit_indexx)
+            mutated_data[byte_index] ^= (1 << bit_index)
             yield bytes(mutated_data)
 
 

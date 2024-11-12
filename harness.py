@@ -124,105 +124,205 @@ def run():
             print(f'There was an error determining the filetype, the file {inputs[i]} did not match any format')
             continue
         exploit_found = False
+
         while True:
 
+            # 1) Read file input
+
+            file_input = None
+
             if file_type == FileType.JSON:
-
-                json_input = read_json_input(inputs[i])
-                json_type = process_json(json_input)
-                gen = json_fuzz_processor(json_input, json_type)
-
-                complete = False
-
-                while True:
-
-                    try:
-                        json_mod = next(gen)
-                    except StopIteration:
-                        print(f'Program {programs[i]} not exploited, going to next...')
-                        complete = True
-                        break
-
-                    # print('json_mod:', json_mod)
-                    json_string = json.dumps(json_mod)
-
-                    exploit_found = run_program(programs[i], json_string, mode='TEXT')
-                    if exploit_found:
-                        write_bad_file(json_string, programs[i], 'TEXT')
-                        print(f'Program {programs[i]} exploited, going to next...')
-                        complete = True
-
-                    if exploit_found:
-                        break
-                if complete: break
-
+                file_input = read_json_input(inputs[i])
             elif file_type == FileType.CSV:
-
-                csv_input = read_csv_file(inputs[i])
-                csv_types = process_csv(csv_input)
-                fuzzer = csv_fuzz_processor(csv_input, csv_types)
-
-                complete = False
-
-                while True:
-
-                    try:
-                        csv_mod = next(fuzzer)
-                    except StopIteration:
-                        print(f'Program {programs[i]} not exploited, going to next...')
-                        complete = True
-                        break
-
-                    # print(f'CSV Mod:\nLine 1: {csv_mod[0][:10]}\nLine 2: {csv_mod[1][:10]}\nLine 3: {csv_mod[2][:10]}\nLine 4: {csv_mod[3][:10]}')
-                    # print('CSV String:', write_csv_string(csv_mod))
-
-                    csv_string = write_csv_string(csv_mod)
-
-                    exploit_found = run_program(programs[i], csv_string, mode='TEXT')
-
-                    if exploit_found:
-                        write_bad_file(csv_string, programs[i], 'TEXT')
-                        print(f'Program {programs[i]} exploited, going to next...')
-                        complete = True
-                        break
-                if complete: break
-
+                file_input = read_csv_file(inputs[i])
             elif file_type == FileType.JPEG:
+                file_input = read_jpg_file(inputs[i])
+            
+            if file_input is None:
+                print(f"Couldn't read in file input for {inputs[i]} of file_type {file_input}")
+                break
 
-                img = read_jpg_file(inputs[i])
+            # 2) Extract data types of data structures within file
 
-                img_exif_types = process_jpeg(img)
+            file_data_types = None
 
-                fuzzer = jpeg_fuzz_processor(img, img_exif_types)
+            if file_type == FileType.JSON:
+                file_data_types = process_json(file_input)
+            elif file_type == FileType.CSV:
+                file_data_types = process_csv(file_input)
+            elif file_type == FileType.JPEG:
+                file_data_types = process_jpeg(file_input)
+            
+            if file_data_types is None:
+                print(f"Couldn't extract data structure types for {inputs[i]}")
+                break
 
-                complete = False
+            # 3) Initialise fuzzer for respective type of file
 
-                while True:
+            fuzzer = None
 
-                    try:
-                        img_mod = next(fuzzer)
-                    except StopIteration:
-                        print(f'Program {programs[i]} not exploited, going to next...')
-                        complete = True
-                        break
+            if file_type == FileType.JSON:
+                fuzzer = json_fuzz_processor(file_input, file_data_types)
+            elif file_type == FileType.CSV:
+                fuzzer = csv_fuzz_processor(file_input, file_data_types)
+            elif file_type == FileType.JPEG:
+                fuzzer = jpeg_fuzz_processor(file_input, file_data_types)
+            
+            if fuzzer is None:
+                print(f"Couldn't create fuzzer for {inputs[i]}")
+                break
+
+            complete = False
+
+            while True:
+
+                # 4) Get next mutated input from fuzzer
+
+                try:
+                    mod_input = next(fuzzer)
+                except StopIteration:
+                    print(f'Program {programs[i]} not exploited, going to next...')
+                    complete = True
+                    break
                 
-                    img_bytes = write_jpeg_input(img_mod)
+                # 5) Convert mutated input into a format which can be input into binary
 
-                    exploit_found = run_program(programs[i], img_bytes, mode='BINARY')
+                binary_input = None
 
-                    if exploit_found:
-                        write_bad_file(img_bytes, programs[i], 'BINARY')
-                        print(f'Program {programs[i]} exploited, going to next...')
-                        complete = True
-                        break
-                if complete: break
-
-            elif file_type == FileType.XML:
-                pass
+                if file_type == FileType.JSON:
+                    binary_input = json.dumps(mod_input)
+                elif file_type == FileType.CSV:
+                    binary_input = write_csv_string(mod_input)
+                elif file_type == FileType.JPEG:
+                    binary_input = write_jpeg_input(mod_input)
+                
+                if binary_input is None:
+                    print(f"Couldn't convert mutated fuzzer output into input for {inputs[i]}")
+                    complete = True
+                    break
                 
 
+                bin_mode = 'TEXT'
 
+                if file_type == FileType.JSON:
+                    bin_mode = 'TEXT'
+                elif file_type == FileType.CSV:
+                    bin_mode = 'TEXT'
+                elif file_type == FileType.JPEG:
+                    bin_mode = 'BINARY'
+                
+                exploit_found = run_program(programs[i], binary_input, mode=bin_mode)
+                if exploit_found:
+                    write_bad_file(binary_input, programs[i], bin_mode)
+                    print(f'Program {programs[i]} exploited, going to next...')
+                    complete = True
+                    break
+                
+
+            if complete: break
 
 # The main entry point for execution
 if __name__ == "__main__":
     run()
+
+# def run_old():
+#     for i, program in enumerate(programs):
+#         file_type = determine_file_type(inputs[i])
+#         if file_type == FileType.NULL:
+#             print(f'There was an error determining the filetype, the file {inputs[i]} did not match any format')
+#             continue
+#         exploit_found = False
+#         while True:
+
+#             if file_type == FileType.JSON:
+
+#                 json_input = read_json_input(inputs[i])
+#                 json_type = process_json(json_input)
+#                 gen = json_fuzz_processor(json_input, json_type)
+
+#                 complete = False
+
+#                 while True:
+
+#                     try:
+#                         json_mod = next(gen)
+#                     except StopIteration:
+#                         print(f'Program {programs[i]} not exploited, going to next...')
+#                         complete = True
+#                         break
+
+#                     # print('json_mod:', json_mod)
+#                     json_string = json.dumps(json_mod)
+
+#                     exploit_found = run_program(programs[i], json_string, mode='TEXT')
+#                     if exploit_found:
+#                         write_bad_file(json_string, programs[i], 'TEXT')
+#                         print(f'Program {programs[i]} exploited, going to next...')
+#                         complete = True
+#                         break
+
+#                 if complete: break
+
+#             elif file_type == FileType.CSV:
+
+#                 csv_input = read_csv_file(inputs[i])
+#                 csv_types = process_csv(csv_input)
+#                 fuzzer = csv_fuzz_processor(csv_input, csv_types)
+
+#                 complete = False
+
+#                 while True:
+
+#                     try:
+#                         csv_mod = next(fuzzer)
+#                     except StopIteration:
+#                         print(f'Program {programs[i]} not exploited, going to next...')
+#                         complete = True
+#                         break
+
+#                     # print(f'CSV Mod:\nLine 1: {csv_mod[0][:10]}\nLine 2: {csv_mod[1][:10]}\nLine 3: {csv_mod[2][:10]}\nLine 4: {csv_mod[3][:10]}')
+#                     # print('CSV String:', write_csv_string(csv_mod))
+
+#                     csv_string = write_csv_string(csv_mod)
+
+#                     exploit_found = run_program(programs[i], csv_string, mode='TEXT')
+
+#                     if exploit_found:
+#                         write_bad_file(csv_string, programs[i], 'TEXT')
+#                         print(f'Program {programs[i]} exploited, going to next...')
+#                         complete = True
+#                         break
+#                 if complete: break
+
+#             elif file_type == FileType.JPEG:
+
+#                 img = read_jpg_file(inputs[i])
+
+#                 img_exif_types = process_jpeg(img)
+
+#                 fuzzer = jpeg_fuzz_processor(img, img_exif_types)
+
+#                 complete = False
+
+#                 while True:
+
+#                     try:
+#                         img_mod = next(fuzzer)
+#                     except StopIteration:
+#                         print(f'Program {programs[i]} not exploited, going to next...')
+#                         complete = True
+#                         break
+                
+#                     img_bytes = write_jpeg_input(img_mod)
+
+#                     exploit_found = run_program(programs[i], img_bytes, mode='BINARY')
+
+#                     if exploit_found:
+#                         write_bad_file(img_bytes, programs[i], 'BINARY')
+#                         print(f'Program {programs[i]} exploited, going to next...')
+#                         complete = True
+#                         break
+#                 if complete: break
+
+#             elif file_type == FileType.XML:
+#                 pass

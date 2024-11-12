@@ -21,19 +21,36 @@ def get_jpeg_meta(img):
     return jpeg_data
 
 def set_jpeg_meta_field(img, meta_key, meta_value):
+    # if meta_key == "Filename":
+    #     img.filename = meta_value
+    # elif meta_key == "Image Size":
+    #     return img
+    #     img._size = meta_value
+    # elif meta_key == "Image Height":
+    #     current_width = img.width
+    #     img._size = (current_width, meta_value)
+    # elif meta_key == "Image Width":
+    #     current_height = img.height
+    #     img._size = (meta_value, current_height)
+    # elif meta_key == "Image Format":
+    #     img.format = meta_value
+    # elif meta_key == "Image Mode":
+    #     img.mode = meta_value
+    # elif meta_key == "Image is Animated":
+    #     img.is_animated = meta_value
+    # elif meta_key == "Frames in Image":
+    #     img.n_frames = meta_value
     
-    # if isinstance(meta_value, int) and meta_value > 2147483647:
-    #     meta_value = 5
-    #     print(meta_value)
+    # return img
 
     exif_data = img.getexif()
 
     exif_key = next((k for k, v in TAGS.items() if v == meta_key.replace(" ", "")), None)
     if exif_key:
-        if isinstance(meta_value, int):
-            set_value = meta_value.to_bytes(16, byteorder='little')
-        else:
-            set_value = meta_value
+        # if isinstance(meta_value, int):
+        #     set_value = meta_value.to_bytes(16, byteorder='little')
+        # else:
+        set_value = meta_value
         exif_data[exif_key] = set_value
     try:
         img.info['exif'] = exif_data.tobytes()
@@ -45,7 +62,8 @@ def set_jpeg_meta_field(img, meta_key, meta_value):
 def read_jpg_file(filepath):
     with open(filepath, 'rb') as f:
         img_bin = f.read()
-        return Image.open(io.BytesIO(img_bin))
+        img = Image.open(io.BytesIO(img_bin))
+        return img
 
 def process_jpeg(img):
 
@@ -63,6 +81,9 @@ def jpeg_fuzz_processor(img, img_exif_types):
     keys_list = list(img_exif_types.keys())
 
     generators = [field_fuzzer(img_exif_types[key], key, jpeg_input[key]) for key in keys_list]
+
+    print(img_exif_types)
+    # exit()
 
     i = 0
     while len(generators) > 0:

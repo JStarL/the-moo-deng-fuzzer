@@ -4,7 +4,7 @@ import io
 import sys
 
 # must change the file path before we commit
-imgPath = 'jpg1.txt'
+imgPath = './example_inputs/jpg1.txt'
 # imgPath = 'test.jpg'
 with open(imgPath, 'rb') as file:
     imgBinary = file.read()
@@ -28,6 +28,8 @@ jpeg_data = {
     "Image is Animated": getattr(image, "is_animated", False),
     "Frames in Image": getattr(image, "n_frames", 1)
 }
+
+print(jpeg_data)
 
 # extract other basic metadata
 exifdata = image.getexif()

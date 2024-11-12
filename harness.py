@@ -82,7 +82,7 @@ def write_bad_file(input: str | bytes, prog_path: str, mode: str = 'TEXT') -> No
 
 def determine_file_type(filepath: str) -> FileType:
     
-    types = [FileType.JSON, FileType.CSV, FileType.JPEG, FileType.XML]
+    types = [FileType.JSON, FileType.CSV, FileType.XML, FileType.JPEG]
 
     for type in types:
         try:
@@ -110,7 +110,6 @@ def determine_file_type(filepath: str) -> FileType:
                 file_string = f.read()
                 # xml.loads(file_string) # also import 
                 return FileType.XML
-
 
         except:
             continue
@@ -219,6 +218,7 @@ def run():
                 if complete: break
 
             elif file_type == FileType.XML:
+                pass
                 
 
 

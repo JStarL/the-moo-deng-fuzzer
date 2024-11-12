@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Generator
-from mutations.interger_mutations import nearby_special_ints, to_str
+from mutations.integer_mutations import nearby_special_ints, to_str
 from mutations.buffer_overflow import buffer_overflow_mutation
 
 

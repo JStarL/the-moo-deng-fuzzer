@@ -11,22 +11,22 @@ logger.addHandler(console_handler)
 
 
 class Binary:
-    def __init__(self, elf: str, base_addr: int = 0) -> None:
+    def __init__(self, binary: str, base_addr: int = 0) -> None:
         """Initialise an instance of the binary class
 
         Args:
             base_addr: The base address 
-            elf: [TODO:description]
+            binary: Path to the target binary
         """
         logger.info("Initialising an instance of `binary` with the base address ")
-        self.elf = elf
+        self.binary = binary
         self.base_addr = base_addr
-        self.__init_radare2__()
+        self.__init_radare2__
 
     def __init_radare2__(self) -> None:
-        """Initialise """
-        self.r2 = r2pipe.open(self.elf)
+        """Open the target binary and analyse it"""
+        self.r2 = r2pipe.open(self.binary)
 
         # Analyse the binary
-        logger.info(f"Analysing the binary {self.elf}")
+        logger.info(f"Analysing the binary {self.binary}")
         self.r2.cmd("aaa")

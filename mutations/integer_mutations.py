@@ -64,7 +64,7 @@ def random_ints(count: int, scope: int, signed: bool = False) -> Iterator[int]:
             yield random.randint(0, scope)
 
 
-def to_str(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
+def to_str(inputs: bytes, ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
     """Converts integers to their byte-string representations.
 
     Args:
@@ -93,7 +93,7 @@ def to_str_add_buf(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
             yield s + buf
 
 
-def to_hex(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
+def to_hex(inputs: bytes, ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
     """Converts integers to their hexadecimal byte-string representations.
 
     Args:
@@ -106,6 +106,7 @@ def to_hex(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
         ints_input = SPECIAL_INTS
     for i in ints_input:
         yield f"{i:x}".encode()
+        yield hex(i).encode()
 
 
 def to_hex_add_buf(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:

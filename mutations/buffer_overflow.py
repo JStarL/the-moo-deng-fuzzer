@@ -1,7 +1,7 @@
 from typing import Iterator
 
 
-def buffer_overflow_mutation() -> Iterator[bytes]:
+def buffer_overflow_mutation(data: bytes) -> Iterator[bytes]:
     """Generates buffer overflows."""
     for i in range(7, 17):
         yield b"A" * 2 ** i

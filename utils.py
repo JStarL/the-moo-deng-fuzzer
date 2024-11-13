@@ -54,9 +54,20 @@ def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Ge
     
     if field_type == FieldType.INTEGER:
         
-        yield from integer_fuzzer()
+        fuzzers = [integer_fuzzer(), string_buffer_overflow()]
 
-        yield from string_buffer_overflow()
+        i = 0
+        while len(fuzzers) > 0:
+            if i >= len(fuzzers):
+                i = 0
+            
+            try:
+                yield next(fuzzers[i])
+            except StopIteration:
+                fuzzers.pop(i)
+                continue
+
+            i += 1
 
     elif field_type == FieldType.FLOAT:
        

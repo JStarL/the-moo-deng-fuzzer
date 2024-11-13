@@ -103,20 +103,22 @@ def random_combined_injection(data: str) -> Iterator[str]:
         for mutation in chosen_injection(data):
             yield mutation
 
-# Example usage
-original_data = "Test format string"
-print("Basic Format Injection:")
-for mutation in format_injection(original_data):
-    print(mutation)
+if __name__ == "__main__":
 
-print("\nLong Format Specifier Injection:")
-for mutation in long_format_specifier(original_data):
-    print(mutation)
+    # Example usage
+    original_data = "Test format string"
+    print("Basic Format Injection:")
+    for mutation in format_injection(original_data):
+        print(mutation)
 
-print("\nBoundary Value Injection:")
-for mutation in boundary_value_injection(original_data):
-    print(mutation)
+    print("\nLong Format Specifier Injection:")
+    for mutation in long_format_specifier(original_data):
+        print(mutation)
 
-print("\nRandom Combined Injection:")
-for mutation in random_combined_injection(original_data):
-    print(mutation)
+    print("\nBoundary Value Injection:")
+    for mutation in boundary_value_injection(original_data):
+        print(mutation)
+
+    print("\nRandom Combined Injection:")
+    for mutation in random_combined_injection(original_data):
+        print(mutation)

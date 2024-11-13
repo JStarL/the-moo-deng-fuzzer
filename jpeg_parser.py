@@ -2,7 +2,6 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 import io
 import random
-import copy
 from utils import FieldType, determine_input_type, field_fuzzer
 from typing import Iterator
 from mutations.bit_flip import byte_flip, random_partial_flip, inject_special_values

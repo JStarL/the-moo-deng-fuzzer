@@ -8,6 +8,7 @@ class FieldType(Enum):
     INTEGER = int,
     FLOAT = float,
     STRING = str,
+    BYTES = bytes,
     EMPTY = None
 
 def determine_input_type(input: any) -> FieldType:
@@ -33,8 +34,17 @@ def determine_input_type(input: any) -> FieldType:
             except:
                 # Neither float nor int
                 pass
-    
-    return FieldType.STRING
+    if isinstance(input, bytes):
+        try:
+            string = input.decode('utf-8')
+            return determine_input_type(string)
+        except:
+            return FieldType.BYTES
+
+    if isinstance(input, bytes):
+        return FieldType.BYTES
+    else:
+        return FieldType.STRING
 
 def integer_fuzzer():
     yield from nearby_special_ints(10)

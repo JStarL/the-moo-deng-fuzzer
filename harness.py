@@ -9,8 +9,8 @@ from PIL import Image
 from enum import Enum
 from typing import List
 
-programs = ['./binaries/json1', './binaries/csv1', './binaries/jpg1']
-inputs = ['./example_inputs/json1.txt', './example_inputs/csv1.txt', './example_inputs/jpg1.txt']
+programs = ['./binaries/json1', './binaries/csv1', './binaries/jpg1']#'./binaries/json2', './binaries/csv2', ]
+inputs = ['./example_inputs/json1.txt', './example_inputs/csv1.txt', './example_inputs/jpg1.txt']#'./example_inputs/csv2.txt', './example_inputs/json2.txt', ]
 
 # programs = ['/binaries/jpg1']
 # inputs = ['example_inputs/jpg1.txt']
@@ -23,25 +23,36 @@ class FileType(Enum):
     NULL = 'null'
 
 
-def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT') -> bool:
+def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=0.8) -> bool:
     '''
     True -> Exploit discovered
     False otherwise
     '''
 
-    if mode == 'TEXT':
-        result = subprocess.run(prog_path, input=input, text=True, universal_newlines=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-    elif mode == 'BINARY':
-        result = subprocess.run(prog_path, input=input, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        if mode == 'TEXT':
+            result = subprocess.run(prog_path, timeout=timeout, input=input, text=True, universal_newlines=True, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        elif mode == 'BINARY':
+            result = subprocess.run(prog_path, timeout=timeout, input=input, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except subprocess.TimeoutExpired as e:
+        print(f'Program {prog_path} timed out')
+        return False
 
+    exit_codes = {
+        -11: 'segfault',
+        -6: 'abort',
+        -5: 'sigtrap',
+        -3: 'abort',
+        134: 'abort'
+    }
     # print(f'Ran program: {prog_path}, got this result: {result.returncode}')
-    if result.returncode == -6 or result.returncode == -11:
+    if result.returncode in exit_codes.keys():
         # print(f'Exploit discovered: prog_name = {prog_path}, input = {input}, mode = {mode}')
         print('Return Code:', result.returncode)
         return True
 
-    # print('Return Code:', result.returncode)
+    print('Return Code:', result.returncode)
     return False
 
 
@@ -174,12 +185,15 @@ def run():
 
             complete = False
 
+            prev_mod_input = None
+
             while True:
 
                 # 4) Get next mutated input from fuzzer
 
                 try:
                     mod_input = next(fuzzer)
+                    # print(mod_input)
                 except StopIteration:
                     print(f'Program {programs[i]} not exploited, going to next...')
                     complete = True
@@ -194,7 +208,7 @@ def run():
                 elif file_type == FileType.CSV:
                     binary_input = write_csv_string(mod_input)
                 elif file_type == FileType.JPEG:
-                    binary_input = write_jpeg_input(mod_input)
+                    binary_input = mod_input
                 
                 if binary_input is None:
                     print(f"Couldn't convert mutated fuzzer output into input for {inputs[i]}")
@@ -211,12 +225,15 @@ def run():
                 elif file_type == FileType.JPEG:
                     bin_mode = 'BINARY'
                 
+                print(f'running program {programs[i]}')
                 exploit_found = run_program(programs[i], binary_input, mode=bin_mode)
                 if exploit_found:
                     write_bad_file(binary_input, programs[i], bin_mode)
                     print(f'Program {programs[i]} exploited, going to next...')
                     complete = True
                     break
+
+                prev_mod_input = mod_input
                 
 
             if complete: break

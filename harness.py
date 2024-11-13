@@ -1,16 +1,36 @@
 from json_parser import read_json_input, process_json, json_fuzz_processor
 from csv_parser import read_csv_file, process_csv, csv_fuzz_processor
 from jpeg_parser import read_jpg_file, process_jpeg, jpeg_fuzz_processor
+from plaintext_parser import read_txt_file, process_txt, write_binary_input, txt_fuzz_processor
 import json
 import io
+import sys
 import csv
 import subprocess
 from PIL import Image
 from enum import Enum
 from typing import List
 
-programs = ['./binaries/json1', './binaries/csv1', './binaries/jpg1']#'./binaries/json2', './binaries/csv2', ]
-inputs = ['./example_inputs/json1.txt', './example_inputs/csv1.txt', './example_inputs/jpg1.txt']#'./example_inputs/csv2.txt', './example_inputs/json2.txt', ]
+programs = [
+    './binaries/json1',
+    #'./binaries/json2',
+    './binaries/csv1',
+    # './binaries/csv2',
+    # './binaries/jpg1',
+    './binaries/plaintext1',
+    './binaries/plaintext2',
+    './binaries/plaintext3',
+]
+inputs = [
+    './example_inputs/json1.txt',
+    # './example_inputs/json2.txt',
+    './example_inputs/csv1.txt',
+    #'./example_inputs/csv2.txt'
+    # './example_inputs/jpg1.txt',
+    './example_inputs/plaintext1.txt',
+    './example_inputs/plaintext2.txt',
+    './example_inputs/plaintext3.txt',
+]
 
 # programs = ['/binaries/jpg1']
 # inputs = ['example_inputs/jpg1.txt']
@@ -20,6 +40,7 @@ class FileType(Enum):
     CSV = 'csv'
     JPEG = 'jpeg'
     XML = 'xml'
+    TXT = 'txt'
     NULL = 'null'
 
 
@@ -88,11 +109,11 @@ def write_bad_file(input: str | bytes, prog_path: str, mode: str = 'TEXT') -> No
             f.write(input)
     else:
         with open(bad_filename, 'wb') as f:
-            f.write()
+            f.write(input)
 
 
 def determine_file_type(filepath: str) -> FileType:
-    
+
     types = [FileType.JSON, FileType.CSV, FileType.XML, FileType.JPEG]
 
     for type in types:
@@ -107,30 +128,38 @@ def determine_file_type(filepath: str) -> FileType:
                 Image.open(filepath)
                 return FileType.JPEG
             elif type == FileType.CSV:
-                file = open(filepath, 'r', newline='')
+                file = open(filepath, 'r', newline='')                
                 csv_reader = csv.DictReader(file)
                 data = list(csv_reader)
+                # print('data:', data)
                 if len(data) == 0:
+                    # print('len of data == 0')
                     raise Exception
                 field_count = len(csv_reader.fieldnames)
                 if any(len(row) != field_count for row in data):
                     raise Exception
+                
+                # Check if there are no commas in the file
+                # This will be the case when there is only a single
+                if len(data[0].keys()) == 1:
+                    raise Exception
                 return FileType.CSV
-            elif type == FileType.XML:
-                f = open(filepath, 'r')
-                file_string = f.read()
-                # xml.loads(file_string) # also import 
-                return FileType.XML
-
+            # elif type == FileType.XML:
+            #     f = open(filepath, 'r')
+            #     file_string = f.read()
+            #     # xml.loads(file_string) # also import 
+            #     return FileType.XML
+            
         except:
             continue
 
-    return FileType.NULL
+    return FileType.TXT
         
 
 def run():
     for i, program in enumerate(programs):
         file_type = determine_file_type(inputs[i])
+        print(f'{programs[i]}: {file_type}')
         if file_type == FileType.NULL:
             print(f'There was an error determining the filetype, the file {inputs[i]} did not match any format')
             continue
@@ -148,6 +177,8 @@ def run():
                 file_input = read_csv_file(inputs[i])
             elif file_type == FileType.JPEG:
                 file_input = read_jpg_file(inputs[i])
+            elif file_type == FileType.TXT:
+                file_input = read_txt_file(inputs[i])
             
             if file_input is None:
                 print(f"Couldn't read in file input for {inputs[i]} of file_type {file_input}")
@@ -163,6 +194,8 @@ def run():
                 file_data_types = process_csv(file_input)
             elif file_type == FileType.JPEG:
                 file_data_types = process_jpeg(file_input)
+            elif file_type == FileType.TXT:
+                file_data_types = process_txt(file_input)
             
             if file_data_types is None:
                 print(f"Couldn't extract data structure types for {inputs[i]}")
@@ -178,6 +211,8 @@ def run():
                 fuzzer = csv_fuzz_processor(file_input, file_data_types)
             elif file_type == FileType.JPEG:
                 fuzzer = jpeg_fuzz_processor(file_input, file_data_types)
+            elif file_type == FileType.TXT:
+                fuzzer = txt_fuzz_processor(file_input, file_data_types)
             
             if fuzzer is None:
                 print(f"Couldn't create fuzzer for {inputs[i]}")
@@ -193,7 +228,7 @@ def run():
 
                 try:
                     mod_input = next(fuzzer)
-                    # print(mod_input)
+                    print(prev_mod_input == mod_input)
                 except StopIteration:
                     print(f'Program {programs[i]} not exploited, going to next...')
                     complete = True
@@ -209,6 +244,9 @@ def run():
                     binary_input = write_csv_string(mod_input)
                 elif file_type == FileType.JPEG:
                     binary_input = mod_input
+                elif file_type == FileType.TXT:
+                    print('mod_input:', mod_input)
+                    binary_input = write_binary_input(mod_input)
                 
                 if binary_input is None:
                     print(f"Couldn't convert mutated fuzzer output into input for {inputs[i]}")
@@ -223,6 +261,8 @@ def run():
                 elif file_type == FileType.CSV:
                     bin_mode = 'TEXT'
                 elif file_type == FileType.JPEG:
+                    bin_mode = 'BINARY'
+                elif file_type == FileType.TXT:
                     bin_mode = 'BINARY'
                 
                 print(f'running program {programs[i]}')

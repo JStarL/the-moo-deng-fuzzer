@@ -11,7 +11,9 @@ def format_injection(data: str) -> Iterator[str]:
         "%d",  # Outputs a signed integer; useful for numeric parsing and boundary testing.
         "%x",  # Outputs a hexadecimal integer; reveals memory contents.
         "%p",  # Outputs a pointer address in hex; tests for memory leak vulnerabilities.
-        "%s %s %s" * 100,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
+        "%p %p %p",  # Multiple pointers; tests memory leak potential with several pointers in sequence.
+        "%s %s %s",  # Multiple pointers; tests memory leak potential with several pointers in sequence.
+        "%p %p %p" * 100,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
         "%s %s %s" * 100,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
         "%n",
         # Writes the number of bytes written so far to a memory address; tests for arbitrary memory write vulnerabilities.

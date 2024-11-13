@@ -1,4 +1,5 @@
 import r2pipe
+import json
 import logging
 
 logger = logging.getLogger("coverage")
@@ -18,10 +19,10 @@ class Binary:
             base_addr: The base address 
             binary: Path to the target binary
         """
-        logger.info("Initialising an instance of `binary` with the base address ")
+        logger.info(f"Initialising an instance of `binary` with the base address {base_addr} and ELF file {binary}")
         self.binary = binary
         self.base_addr = base_addr
-        self.__init_radare2__
+        self.__init_radare2__()
 
     def __init_radare2__(self) -> None:
         """Open the target binary and analyse it"""
@@ -30,3 +31,8 @@ class Binary:
         # Analyse the binary
         logger.info(f"Analysing the binary {self.binary}")
         self.r2.cmd("aaa")
+
+    def get_blocks(self, addr: int):
+        result = self.r2.cmd(f"afbj @ {addr}")
+        blocks = json.loads(result)
+        return blocks

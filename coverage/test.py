@@ -4,10 +4,13 @@ import json
 binary = "../binaries/csv1"
 
 cov = Binary(binary)
-blocks = json.loads(cov.r2.cmd("afbj @ sym.fread_csv_line"))
+blocks = cov.get_blocks(0x00001867)
+
+print(f"Type of the `blocks` dictionary is {type(blocks)}")
 
 for block in blocks:
     print("========================")
+    print(block)
     print(f"Start: {hex( block['addr'] )}")
     print(f"Size: {block['size']} bytes")
     print("Content:")

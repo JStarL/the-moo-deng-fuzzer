@@ -1,3 +1,4 @@
+from typing import Dict, List
 import r2pipe
 import json
 import logging
@@ -27,12 +28,32 @@ class Binary:
     def __init_radare2__(self) -> None:
         """Open the target binary and analyse it"""
         self.r2 = r2pipe.open(self.binary)
+        self.analyse_all()
 
-        # Analyse the binary
+    def analyse_all(self):
+        """Performs a full analysis of the binary."""
         logger.info(f"Analysing the binary {self.binary}")
-        self.r2.cmd("aaa")
+        self.r2.cmd('aaa')
 
-    def get_blocks(self, addr: int):
+    def get_blocks(self, addr: int) -> List[Dict[int, int]]:
+        """Find the basic blocks in a function
+
+        Args:
+            addr: The address to the function
+
+        Returns:
+            A list of dictionaries containing
+
+            - the starting address (`addr`),
+            - the size (`size`),
+            - the operation address (`opaddr`)
+            - the number of instructions (`ninstr`),
+            - the address of ecah instruction (`instrs`), and
+            - whether or not it has been analysed by radare2 (`traced`)
+
+            for each basic block.
+
+        """
         result = self.r2.cmd(f"afbj @ {addr}")
         blocks = json.loads(result)
         return blocks

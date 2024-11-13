@@ -21,6 +21,7 @@ class Binary:
         logger.info("Initialising an instance of `binary` with the base address ")
         self.elf = elf
         self.base_addr = base_addr
+        self.__init_radare2__()
 
     def __init_radare2__(self) -> None:
         """Initialise """

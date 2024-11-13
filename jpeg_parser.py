@@ -5,6 +5,8 @@ import random
 import copy
 from utils import FieldType, determine_input_type, field_fuzzer
 from typing import Iterator
+from mutations.bit_flip import byte_flip, random_partial_flip
+from mutations.keywords import repeat_keyword_inplace, delete_keyword
 
 MARKERS = {
     "Image Start": 0xFFD8.to_bytes(2, byteorder='big'),
@@ -17,7 +19,7 @@ MARKERS = {
 }
 
 def byte_flip_mutation(data):
-    pass
+    yield from random_partial_flip(data)
 
 def header_mutator(img_bin):
     header = MARKERS["Default Header"]
@@ -66,7 +68,24 @@ def mutate_region(img_bytes: bytes, start_marker: bytes, end_marker: bytes) -> I
             yield before_region + start_marker + mutated_region + end_marker + after_region
     except StopIteration:
         print(f'Tried all byte flip mutations for jpeg')
-        raise StopIteration
+
+def edit_markers(img_bytes: bytes) -> Iterator[bytes]:
+
+    mutators = []
+    mutators.append(repeat_keyword_inplace(img_bytes, list(MARKERS.values())))
+    mutators.append(delete_keyword(img_bytes, list(MARKERS.values())))
+
+    i = 0
+    while len(mutators) > 0:
+        if i >= len(mutators):
+            i = 0
+        
+        try:
+            mod_img_bytes = next(mutators[i])
+            yield mod_img_bytes
+        except StopIteration:
+            mutators.pop(i)
+            continue
 
 def jpeg_fuzz_processor(img, img_exif_types):
     img_byte_arr = io.BytesIO()
@@ -79,6 +98,7 @@ def jpeg_fuzz_processor(img, img_exif_types):
     mutators.append(frame_mutator(img_bin))
     mutators.append(huffman_mutator(img_bin))
     mutators.append(image_content_mutator(img_bin))
+    mutators.append(edit_markers(img_bin))
 
     i = 0
 
@@ -90,6 +110,7 @@ def jpeg_fuzz_processor(img, img_exif_types):
             mod_img_bin = next(mutators[i])
             yield mod_img_bin
         except StopIteration:
+            print(f'Finished index {i}')
             mutators.pop(i)
             continue
 

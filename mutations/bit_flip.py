@@ -1,5 +1,9 @@
 from typing import Iterator
 import random
+from .special_values import SPECIAL_CHAR_INTS
+
+# Define boundary values in string form for testing in text-based fields
+BOUNDARY_CHAR_STRINGS = ["\x00", "\xFF", "\x7F", "\x80"]
 
 
 def bit_flip(data: bytes) -> Iterator[bytes]:
@@ -102,7 +106,7 @@ def inject_special_values(data: bytes) -> Iterator[bytes]:
     """
     Inject common boundary values (e.g., 0x00, 0xFF, etc.) into each byte position.
     """
-    special_values = [0x00, 0xFF, 0x7F, 0x80]
+    special_values = SPECIAL_CHAR_INTS
     for byte_index in range(len(data)):
         for value in special_values:
             mutated_data = bytearray(data)

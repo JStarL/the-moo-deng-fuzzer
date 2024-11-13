@@ -1,5 +1,6 @@
 from typing import Iterator
 import random
+from .special_values import BOUNDARY_CHAR_STRINGS
 
 def format_injection(data: str) -> Iterator[str]:
     """
@@ -10,7 +11,8 @@ def format_injection(data: str) -> Iterator[str]:
         "%d",  # Outputs a signed integer; useful for numeric parsing and boundary testing.
         "%x",  # Outputs a hexadecimal integer; reveals memory contents.
         "%p",  # Outputs a pointer address in hex; tests for memory leak vulnerabilities.
-        "%p %p %p",  # Multiple pointers; tests memory leak potential with several pointers in sequence.
+        "%s %s %s" * 10,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
+        "%s %s %s" * 10,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
         "%n",
         # Writes the number of bytes written so far to a memory address; tests for arbitrary memory write vulnerabilities.
         "%hhn",  # Writes 1 byte to a memory address; useful in testing byte-specific vulnerabilities.
@@ -81,7 +83,7 @@ def boundary_value_injection(data: str) -> Iterator[str]:
     """
     Inject boundary values (e.g., \x00, \xFF) into the string.
     """
-    boundary_values = ["\x00", "\xFF", "\x7F", "\x80"]
+    boundary_values = BOUNDARY_CHAR_STRINGS
     for boundary in boundary_values:
         yield data.replace(" ", boundary)  # Replace spaces with boundary values
         yield f"{boundary}{data}{boundary}"

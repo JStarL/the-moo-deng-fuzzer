@@ -35,6 +35,14 @@ SPECIAL_INTS: list[int] = list({
     9001,  # Over 9000!
 })
 
+# Define special character values as integers for boundary and edge case testing
+SPECIAL_CHAR_INTS = [0x00, 0xFF, 0x7F, 0x80]
+
+# Define boundary values in string form for testing in text-based fields
+BOUNDARY_CHAR_STRINGS = ["\x00", "\xFF", "\x7F", "\x80"]
+
+
+
 SPECIAL_POSITIVE_INTS = [i for i in SPECIAL_INTS if i > 0]
 TRIVAL_POSITIVE_INTS = list({
     2 ** 16

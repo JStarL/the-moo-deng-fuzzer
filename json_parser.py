@@ -3,7 +3,7 @@ import copy
 from typing import Generator, Dict
 from utils import FieldType, determine_input_type, field_fuzzer
 
-def read_json_input(filename: str) -> None:
+def read_json_input(filename: str) -> any:
     with open(filename, 'r') as f:
         json_string = f.read()
     

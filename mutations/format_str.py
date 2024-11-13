@@ -1,6 +1,7 @@
 from typing import Iterator
 import random
 from .special_values import BOUNDARY_CHAR_STRINGS
+import sys
 
 def format_injection(data: str) -> Iterator[str]:
     """
@@ -75,6 +76,13 @@ def long_format_specifier(data: str) -> Iterator[str]:
         "%lld",  # Long integer format, useful for 64-bit systems
         "%jx",  # Prints pointer-sized integer, common on POSIX systems
     ]
+    
+    if isinstance(data, bytes):
+        try:
+            data = data.decode('utf-8')
+        except:
+            pass
+    
     for spec in long_specs:
         yield f"{data} {spec}"
         yield f"{spec} {data}"

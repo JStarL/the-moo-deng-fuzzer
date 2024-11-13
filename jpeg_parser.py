@@ -5,7 +5,7 @@ import random
 import copy
 from utils import FieldType, determine_input_type, field_fuzzer
 from typing import Iterator
-from mutations.bit_flip import byte_flip, random_partial_flip
+from mutations.bit_flip import byte_flip, random_partial_flip, inject_special_values
 from mutations.keywords import repeat_keyword_inplace, delete_keyword
 
 MARKERS = {
@@ -19,7 +19,21 @@ MARKERS = {
 }
 
 def byte_flip_mutation(data):
-    yield from random_partial_flip(data)
+    
+    mutators = [random_partial_flip(data), inject_special_values(data)]
+    
+    i = 0
+    while len(mutators) > 0:
+        if i >= len(mutators):
+            i = 0
+        
+        try:
+            yield next(mutators[i])
+        except StopIteration:
+            mutators.pop(i)
+            continue
+
+        i += 1
 
 def header_mutator(img_bin):
     header = MARKERS["Default Header"]

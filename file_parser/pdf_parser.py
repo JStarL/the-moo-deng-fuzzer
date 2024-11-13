@@ -80,7 +80,7 @@ def fuzzer_pipeline(pdf_path, prog_path):
     pdf_data = read_pdf_as_bytes(pdf_path)
 
     # Step 2: Parse PDF structure
-    doc, structure = pdf_parser(pdf_data)
+    _, structure = pdf_parser(pdf_data)  # No need to keep doc; focus on metadata mutation
 
     # Step 3: Run the C program with the original PDF data
     print("\nRunning C program with original PDF data:")
@@ -88,15 +88,15 @@ def fuzzer_pipeline(pdf_path, prog_path):
     print("C program stdout:", result.stdout.decode(errors="ignore"))
     print("C program stderr:", result.stderr.decode(errors="ignore"))
 
-    # Step 4: Apply mutations and run tests for each mutated PDF
-    for mutation_index, mutated_pdf_data in enumerate(metadata_mutation(doc)):
+    # Step 4: Apply mutations and run tests for each mutated PDF binary
+    for mutation_index, mutated_pdf_data in enumerate(metadata_mutation(pdf_data)):
 
         print(f"\nRunning C program with mutated PDF data, mutation #{mutation_index + 1}:")
         result_mutated = run_c_program_with_pdf(prog_path, mutated_pdf_data)
         print("C program stdout:", result_mutated.stdout.decode(errors="ignore"))
         print("C program stderr:", result_mutated.stderr.decode(errors="ignore"))
 
-        # Optional: Save each mutated version for manual inspection
+
     return
 
 

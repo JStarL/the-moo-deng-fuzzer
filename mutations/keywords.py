@@ -2,6 +2,7 @@ from typing import Iterator, List
 from mutations.special_values import TRIVAL_POSITIVE_INTS
 import copy
 
+ARCH_SIZE = 64
 
 def repeat_header(keywords: bytes) -> Iterator[bytes]:
     """Repeat header in the input for the specified number of times."""
@@ -19,6 +20,17 @@ def repeat_last_keyword(input: List[str], keywords: List[str]) -> Iterator[List[
         mod_input.extend(extra_keywords)
         yield mod_input
 
+def repeat_keyword_inplace(input: bytes, keywords: List[bytes]) -> Iterator[bytes]:
+    for keyword in keywords:
+        i = 0
+        while i < ARCH_SIZE:
+            mod_input = input[:].replace(keyword, keyword * i)
+            yield mod_input
+
+def delete_keyword(input: bytes, keywords: List[bytes]) -> Iterator[bytes]:
+    for keyword in keywords:
+        mod_input = input.replace(keyword, b"")
+        yield mod_input
 
 if __name__ == "__main__":
     # Example CSV input as bytes

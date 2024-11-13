@@ -76,13 +76,10 @@ def run_c_program_with_pdf(prog_path, pdf_data):
     return result
 
 def fuzzer_pipeline(pdf_path, prog_path):
-    # Step 1: Read PDF as bytes
+    # Read PDF as bytes
     pdf_data = read_pdf_as_bytes(pdf_path)
 
-    # Step 2: Parse PDF structure
-    _, structure = pdf_parser(pdf_data)  # No need to keep doc; focus on metadata mutation
-
-    # Step 3: Run the C program with the original PDF data
+    # Run the C program with the original PDF data
     print("\nRunning C program with original PDF data:")
     result = run_c_program_with_pdf(prog_path, pdf_data)
     print("C program stdout:", result.stdout.decode(errors="ignore"))

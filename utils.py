@@ -61,33 +61,35 @@ def string_fuzzer():
     yield from to_str()
 
 def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Generator[any, None, None]:
-    
+
+    fuzzers = []
+
     if field_type == FieldType.INTEGER:
         
-        fuzzers = [integer_fuzzer(), string_buffer_overflow()]
-
-        i = 0
-        while len(fuzzers) > 0:
-            if i >= len(fuzzers):
-                i = 0
-            
-            try:
-                yield next(fuzzers[i])
-            except StopIteration:
-                fuzzers.pop(i)
-                continue
-
-            i += 1
+        fuzzers.append(integer_fuzzer())
 
     elif field_type == FieldType.FLOAT:
        
-        yield from float_fuzzer()
-        
-        yield from string_buffer_overflow()
+        fuzzers.append(float_fuzzer())
 
     elif field_type == FieldType.STRING:
         
-        yield from string_fuzzer()
+        fuzzers.append(string_fuzzer())
+
+    fuzzers.append(string_buffer_overflow())
+
+    i = 0
+    while len(fuzzers) > 0:
+        if i >= len(fuzzers):
+            i = 0
+        
+        try:
+            yield next(fuzzers[i])
+        except StopIteration:
+            fuzzers.pop(i)
+            continue
+
+        i += 1    
     
     print(f"Fuzzing {field_name} is complete")
 

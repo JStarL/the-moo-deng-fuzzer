@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Generator
 from mutations.integer_mutations import nearby_special_ints, to_str
 from mutations.buffer_overflow import buffer_overflow_mutation
+from mutations.bit_flip import random_partial_flip
 
 
 class FieldType(Enum):
@@ -67,16 +68,22 @@ def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Ge
     if field_type == FieldType.INTEGER:
         
         fuzzers.append(integer_fuzzer())
+        fuzzers.append(string_buffer_overflow())
 
     elif field_type == FieldType.FLOAT:
        
         fuzzers.append(float_fuzzer())
+        fuzzers.append(string_buffer_overflow())
 
     elif field_type == FieldType.STRING:
         
         fuzzers.append(string_fuzzer())
+        fuzzers.append(string_buffer_overflow())
+        fuzzers.append(random_partial_flip(field_value))
 
-    fuzzers.append(string_buffer_overflow())
+    elif field_type == FieldType.BYTES:
+
+        fuzzers.append(random_partial_flip(field_value))
 
     i = 0
     while len(fuzzers) > 0:

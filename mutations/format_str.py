@@ -28,6 +28,7 @@ def format_injection(data: bytes) -> Iterator[bytes]:
         b"%s %s %s",  # Multiple pointers; tests memory leak potential with several pointers in sequence.
         b"%p %p %p" * 1000,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
         b"%s %s %s" * 1000,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
+        b"%lln" * 10000, # Writes 8 bytes to a memory address
         b"%n",
         # Writes the number of bytes written so far to a memory address; tests for arbitrary memory write vulnerabilities.
         b"%hhn",  # Writes 1 byte to a memory address; useful in testing byte-specific vulnerabilities.

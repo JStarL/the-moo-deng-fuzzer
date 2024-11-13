@@ -1,34 +1,65 @@
-def mutate_file_structure(doc):
+from io import BytesIO
+from .special_values import SPECIAL_CHAR_INTS, SPECIAL_INTS
+import fitz
+import random
+
+# Define the supported metadata keys by fitz library
+SUPPORTED_METADATA_KEYS = ["title", "author", "subject", "keywords", "creator", "producer", "creationDate", "modDate"]
+
+def metadata_mutation(doc):
     """
-    Mutates file structure by injecting potential crash-inducing elements, such as
-    excessive nested objects, oversized data blocks, and invalid structures.
+    Mutates metadata by injecting boundary values, oversized strings, invalid keys, and random data.
+    This generator yields mutated PDF binaries designed to test parser robustness.
     """
-    # Clear metadata to simulate missing document info
-    doc.set_metadata({})
+    def yield_mutated_doc_bytes(metadata):
+        filtered_metadata = {k: v for k, v in metadata.items() if k in SUPPORTED_METADATA_KEYS}
+        doc.set_metadata(filtered_metadata)
+        output_pdf_bytes_io = BytesIO()
+        doc.save(output_pdf_bytes_io)
+        yield output_pdf_bytes_io.getvalue()
 
-    # Attempt to add excessive nested structures
-    try:
-        page = doc[0]
-        for i in range(100):  # Adding excessive levels of nested structures
-            page.insert_text((72, 72 + i * 10), f"<< /InvalidStructure {i} >>", fontsize=8)
-    except Exception as e:
-        print(f"Error adding nested structures: {e}")
+    original_metadata = doc.metadata
 
-    # Insert a large, nonsensical data block
-    large_text = "/BigData " + "A" * 10000  # Oversized text block
-    try:
-        page.insert_text((72, 72), large_text, fontsize=12)
-    except Exception as e:
-        print(f"Error inserting large data block: {e}")
+    # Mutation 1: Inject extremely long and nested strings
+    deep_nested_string = "<<" + "A" * 5000 + ">>"
+    nested_metadata = {key: deep_nested_string for key in SUPPORTED_METADATA_KEYS}
+    yield from yield_mutated_doc_bytes(nested_metadata)
 
-    # Break cross-references by removing random image references
-    for page_num in range(doc.page_count):
-        page = doc[page_num]
-        for img in page.get_images(full=True):
-            xref = img[0]
-            try:
-                page.clean_contents(xref)  # Remove image reference
-            except Exception as e:
-                print(f"Error breaking cross-references: {e}")
+    # Mutation 2: Random invalid control characters in metadata
+    control_chars = ''.join(chr(random.choice(SPECIAL_CHAR_INTS)) for _ in range(500))
+    control_metadata = {key: control_chars for key in SUPPORTED_METADATA_KEYS}
+    yield from yield_mutated_doc_bytes(control_metadata)
 
-    return doc
+    # Mutation 3: Inject extremely large integer values
+    large_integers_metadata = {
+        "title": str(random.choice(SPECIAL_INTS)),
+        "author": str(2**64),
+        "subject": str(-2**63),
+        "keywords": str(2**32 - 1),
+        "creator": "1e308",  # Large float
+        "producer": "-1e308",  # Large negative float
+        "creationDate": str(2**128),  # Beyond typical integer range
+        "modDate": str(-2**128)
+    }
+    yield from yield_mutated_doc_bytes(large_integers_metadata)
+
+    # Mutation 4: Inject special characters with random ASCII and binary data
+    special_binary_data = ''.join(chr(random.randint(0, 255)) for _ in range(1000))
+    binary_metadata = {key: special_binary_data for key in SUPPORTED_METADATA_KEYS}
+    yield from yield_mutated_doc_bytes(binary_metadata)
+
+    # Mutation 5: Overwrite with random invalid keys and values
+    invalid_keys_metadata = {
+        "InvalidKey" + str(i): "RandomValue" + special_binary_data[:100]
+        for i in range(100)  # Add 100 invalid keys
+    }
+    yield from yield_mutated_doc_bytes(invalid_keys_metadata)
+
+    # Mutation 6: Alternating extreme values for each key
+    alternating_metadata = {
+        key: ("A" * 1000 if i % 2 == 0 else "\x00" * 1000) for i, key in enumerate(SUPPORTED_METADATA_KEYS)
+    }
+    yield from yield_mutated_doc_bytes(alternating_metadata)
+
+    # Restore original metadata
+    doc.set_metadata(original_metadata)

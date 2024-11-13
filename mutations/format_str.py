@@ -1,5 +1,6 @@
 from typing import Iterator
 import random
+from .special_values import BOUNDARY_CHAR_STRINGS
 
 def format_injection(data: str) -> Iterator[str]:
     """
@@ -82,7 +83,7 @@ def boundary_value_injection(data: str) -> Iterator[str]:
     """
     Inject boundary values (e.g., \x00, \xFF) into the string.
     """
-    boundary_values = ["\x00", "\xFF", "\x7F", "\x80"]
+    boundary_values = BOUNDARY_CHAR_STRINGS
     for boundary in boundary_values:
         yield data.replace(" ", boundary)  # Replace spaces with boundary values
         yield f"{boundary}{data}{boundary}"

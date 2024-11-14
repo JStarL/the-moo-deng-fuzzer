@@ -80,7 +80,7 @@ def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Ge
         
         fuzzers.append(to_str())
         fuzzers.append(buffer_overflow_mutation())
-        # fuzzers.append(random_partial_flip(field_value))
+        fuzzers.append(random_partial_flip(field_value))
 
         if isinstance(field_value, str):
             field_value_mod = field_value.encode('utf-8')

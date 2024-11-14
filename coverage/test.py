@@ -27,8 +27,8 @@ for item in test:
     print(item.keys())
     for block in item['blocks']:
         print(f"keys: { block.keys() }")
-        print(f"offset: { block['offset'] }")
-        print(f"size: { block['size'] }")
-        print(f"jump: { block['jump'] }")
-        print(f"fail: { block['fail'] }")
+        print(f"offset: { block.get('offset', 'None') }")
+        print(f"size: { block.get('size', 'None') }")
+        print(f"jump: { block.get('jump', 'None') }")
+        print(f"fail: { block.get('fail', 'None') }")
         print()

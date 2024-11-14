@@ -1,11 +1,13 @@
 from binary import Binary
 from graph import ControlFlowGraph
 
-binary = "../binaries/csv1"
-
-cov = Binary(binary)
-addr = 0x00001867
-blocks = cov.get_blocks(addr)
+binary  = "../binaries/csv1"
+binary  = Binary(
+        binary      = binary,
+        base_addr   = 0x100,
+)
+addr    = 0x00001867
+blocks  = binary.get_blocks(addr)
 
 # print(f"Type of the `blocks` dictionary is {type(blocks)}")
 #
@@ -22,7 +24,7 @@ blocks = cov.get_blocks(addr)
 #
 # print("========================")
 
-test = cov.r2.cmdj(f"agfj @ sym.fread_csv_line")
+test = binary.r2.cmdj(f"agfj @ sym.fread_csv_line")
 print(type(test))
 for item in test:
     print(item.keys())
@@ -34,7 +36,7 @@ for item in test:
         print()
 
 cfg = ControlFlowGraph(
-        binary      = cov, 
+        binary      = binary, 
         main_addr   = addr,
     )
 
@@ -42,3 +44,7 @@ for vertex in cfg.graph.get_vertices():
     print(f"Vertex {vertex} has value {hex( cfg.offset_map[vertex] )} and points to {cfg.graph.get_all_neighbors(vertex)}")
 
 print(f"There are { len(blocks) } blocks")
+
+breakpoints = binary.get_blocks(addr)
+breakpoints = map(lambda x: x['offset'], breakpoints)
+binary.run_with_log(breakpoints)

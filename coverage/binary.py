@@ -1,6 +1,7 @@
 from typing import Dict, List
 import r2pipe
 import logging
+import time
 
 logger = logging.getLogger("coverage")
 logger.setLevel(logging.DEBUG)
@@ -43,49 +44,33 @@ class Binary:
         logger.info(f"Analysing the binary {self.binary}")
         self.r2.cmd("aaa")
 
-    def get_blocks(self, addr: int) -> List[Dict[int, int]]:
-        """Find the basic blocks in a function
-
-        Args:
-            addr: The address of the function
-
-        Returns:
-            A list of dictionaries containing
-
-            - the starting address (`addr`),
-            - the size (`size`),
-            - the operation address (`opaddr`)
-            - the number of instructions (`ninstr`),
-            - the address of ecah instruction (`instrs`), and
-            - whether or not it has been analysed by radare2 (`traced`)
-
-            for each basic block.
-
-        """
-        return self.r2.cmdj(f"afbj @ {addr}")
-
-    def get_graph(self, addr: int) -> List[Dict]:
+    def get_blocks(self, addr: int) -> List[Dict]:
         """Get the control flow graph of a function
 
         Args:
             addr: The address of the function
 
         Returns:
-            A list of dictionaries containing
-
-            - 'name',
-            - 'offset',
-            - 'ninstr',
-            - 'nargs',
-            - 'nlocals',
-            - 'size',
-            - 'stack',
-            - 'type', and
-            - 'blocks'.
-
-            'blocks' also contains
-
-            - 'jump', which is the address of the instruction that the block jumps to if the comparison returns true, and
-            - 'fail', which is the address of the instruction that the block jumps to otherwise.
+            A list of dictionaries representing the basic blocks.
         """
-        return self.r2.cmdj(f"agfj @ {addr}")
+        return self.r2.cmdj(f"afbj @ {addr}")
+
+    def run_with_log(self, breakpoints: [int]) -> [int]:
+        self.r2.cmd("ood")
+
+        for addr in breakpoints:
+            addr = self.base_addr + addr
+            logger.info(f"Adding breakpoint at {hex( addr )}")
+            self.r2.cmd(f"db {addr} if 0")  # Breakpoint with a false condition
+            self.r2.cmd(f"dbc {addr} '!echo \"Passed through address {addr}\"'")  # Log message on hit
+
+        # Start running
+        self.r2.cmd("dc")
+
+        # Periodically check if the process is still running
+        while True:
+            status = self.r2.cmd("dcs").strip()
+            if status == "finished":
+                break
+            time.sleep(0.5)
+

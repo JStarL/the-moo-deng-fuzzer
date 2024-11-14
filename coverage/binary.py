@@ -12,6 +12,13 @@ logger.addHandler(console_handler)
 
 
 class Binary:
+    """The binary to be analysed
+
+    Attributes: 
+        binary: Path to the binary file
+        base_addr: Starting address of the program's memory region
+        r2: The instance of r2pipe that is opened for the target binary
+    """
     def __init__(self, binary: str, base_addr: int = 0) -> None:
         """Initialise an instance of the binary class
 

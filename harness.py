@@ -101,7 +101,7 @@ def write_jpeg_input(img_mod) -> bytes:
     # except:
     #     print("Couldn't convert image to bytes")
     #     return b'None'
-    
+
     img_byte_arr = io.BytesIO()
     try:
         img_mod.save(img_byte_arr, format='JPEG')

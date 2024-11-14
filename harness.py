@@ -16,27 +16,27 @@ from typing import List
 from logger import fuzzer_logger
 
 programs = [
-    './binaries/json1',
-    './binaries/json2',
-    './binaries/csv1',
-    './binaries/csv2',
-    './binaries/jpg1',
-    './binaries/plaintext1',
-    './binaries/plaintext2',
-    './binaries/plaintext3',
+    # './binaries/json1',
+    # './binaries/json2',
+    # './binaries/csv1',
+    # './binaries/csv2',
+    # './binaries/jpg1',
+    # './binaries/plaintext1',
+    # './binaries/plaintext2',
+    # './binaries/plaintext3',
     './binaries/xml1',
     './binaries/xml2',
     './binaries/xml3',
 ]
 inputs = [
-    './example_inputs/json1.txt',
-    './example_inputs/json2.txt',
-    './example_inputs/csv1.txt',
-    './example_inputs/csv2.txt'
-    './example_inputs/jpg1.txt',
-    './example_inputs/plaintext1.txt',
-    './example_inputs/plaintext2.txt',
-    './example_inputs/plaintext3.txt',
+    # './example_inputs/json1.txt',
+    # './example_inputs/json2.txt',
+    # './example_inputs/csv1.txt',
+    # './example_inputs/csv2.txt'
+    # './example_inputs/jpg1.txt',
+    # './example_inputs/plaintext1.txt',
+    # './example_inputs/plaintext2.txt',
+    # './example_inputs/plaintext3.txt',
     './example_inputs/xml1.txt',
     './example_inputs/xml2.txt',
     './example_inputs/xml3.txt',

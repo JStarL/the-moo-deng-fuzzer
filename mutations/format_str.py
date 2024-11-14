@@ -17,8 +17,7 @@ def boundary_str_injection(data: bytes) -> Iterator[bytes]:
     """
     for spec in BOUNDARY_VALUES:
         yield spec
-        yield data + b"" + spec
-        yield spec + b"" + data
+        # yield data + b" " + spec
 
 
 def format_injection(data: bytes) -> Iterator[bytes]:
@@ -26,9 +25,9 @@ def format_injection(data: bytes) -> Iterator[bytes]:
     Inject common format specifiers (e.g., %s, %d, %x) into the byte sequence.
     """
     for spec in format_specifiers:
-        yield data + b"" + spec
-        yield spec + b"" + data
-        yield spec
+        # yield data + b"" + spec
+        yield spec + b" " + data
+        # yield spec
 
 
 def long_format_specifier(data: bytes) -> Iterator[bytes]:

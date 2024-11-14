@@ -39,11 +39,13 @@ SPECIAL_INTS: list[int] = list({
 SPECIAL_CHAR_INTS = list({0x00, 0xFF, 0x7F, 0x80})
 
 # Define boundary values in string form for testing in text-based fields
-BOUNDARY_CHAR_STRINGS = list({"\x00", "\xFF", "\x7F", "\x80", "\x01", "\x02", "\x03",
+BOUNDARY_CHAR_STRINGS = list({"\x00", "\xFF",
+                              "\x7F", "\x80", "\x01", "\x02", "\x03",
                               "\x04", "\x05", "\x06", "\x07", "\x08", "\x09", "\x0a",
                               "\x0b", "\x0c", "\x0d", "\x0e", "\x0f", "\x10", "\x11",
                               "\x12", "\x13", "\x14", "\x15", "\x16", "\x17", "\x18",
                               "\x19", "\x1a", "\x1b", "\x1c", "\x1d", "\x1e", "\x1f"
+
                               })
 
 SPECIAL_POSITIVE_INTS = [i for i in SPECIAL_INTS if i > 0]
@@ -101,6 +103,8 @@ INJECTION_PAYLOADS: list[bytes] = list({
 
 BOUNDARY_VALUES = list({
     b"",  # Empty string
+    b" ",  # space
+    b"A" * 4,  # test
     b"A" * 1024,  # Large string to test buffer limits
     b"A" * 65536,  # Extremely large string for memory handling
     b"\x00",  # Null byte (often terminates strings in C-based languages)
@@ -136,12 +140,13 @@ format_specifiers = list({
     b"%d",  # Outputs a signed integer; useful for numeric parsing and boundary testing.
     b"%x",  # Outputs a hexadecimal integer; reveals memory contents.
     b"%p",  # Outputs a pointer address in hex; tests for memory leak vulnerabilities.
+    b"%n",
     b"%p %p %p",  # Multiple pointers; tests memory leak potential with several pointers in sequence.
     b"%s %s %s",  # Multiple pointers; tests memory leak potential with several pointers in sequence.
-    b"%p %p %p" * 1000,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
-    b"%s %s %s" * 1000,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
-    b"%lln" * 10000,  # Writes 8 bytes to a memory address
-    b"%n",
+    b"%p %p %p" * 1024,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
+    b"%s %s %s" * 1024,  # Multiple pointers; tests memory leak potential with several pointers in sequence.
+    b"%lln" * 1024,  # Writes 8 bytes to a memory address
+    #
     # Writes the number of bytes written so far to a memory address; tests for arbitrary memory write vulnerabilities.
     b"%hhn",  # Writes 1 byte to a memory address; useful in testing byte-specific vulnerabilities.
     b"%hn",  # Writes 2 bytes to a memory address; partial overwrite vulnerabilities.

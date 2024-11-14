@@ -12,6 +12,7 @@ import subprocess
 from PIL import Image
 from enum import Enum
 from typing import List
+from logger import fuzzer_logger
 
 programs = [
     './binaries/json1',
@@ -22,8 +23,8 @@ programs = [
     './binaries/plaintext1',
     './binaries/plaintext2',
     # './binaries/plaintext3',
-    './binaries/xml1',
-    # './binaries/xml2',
+    # './binaries/xml1',
+    './binaries/xml2',
     # './binaries/xml3',
 ]
 inputs = [
@@ -35,8 +36,8 @@ inputs = [
     './example_inputs/plaintext1.txt',
     './example_inputs/plaintext2.txt',
     # './example_inputs/plaintext3.txt',
-    './example_inputs/xml1.txt',
-    # './example_inputs/xml2.txt',
+    # './example_inputs/xml1.txt',
+    './example_inputs/xml2.txt',
     # './example_inputs/xml3.txt',
 ]
 
@@ -65,7 +66,7 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
         elif mode == 'BINARY':
             result = subprocess.run(prog_path, timeout=timeout, input=input, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.TimeoutExpired as e:
-        print(f'Program {prog_path} timed out')
+        fuzzer_logger.debug(f'Program {prog_path} timed out')
         return False
 
     exit_codes = {
@@ -78,10 +79,10 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
     # print(f'Ran program: {prog_path}, got this result: {result.returncode}')
     if result.returncode in exit_codes.keys():
         # print(f'Exploit discovered: prog_name = {prog_path}, input = {input}, mode = {mode}')
-        print('Return Code:', result.returncode)
+        fuzzer_logger.critical(f'Exploit Return Code: {result.returncode}')
         return True
 
-    # print('Return Code:', result.returncode)
+    fuzzer_logger.debug(f'Normal Return Code: {result.returncode}')
     return False
 
 
@@ -166,10 +167,11 @@ def determine_file_type(filepath: str) -> FileType:
 
 def run():
     for i, program in enumerate(programs):
+        fuzzer_logger.debug(f"Program[{i}] = {program} is executing")
         file_type = determine_file_type(inputs[i])
-        print(f'{programs[i]}: {file_type}')
+        fuzzer_logger.debug(f'the file inputs[{i}] has file type: {file_type}')
         if file_type == FileType.NULL:
-            print(f'There was an error determining the filetype, the file {inputs[i]} did not match any format')
+            fuzzer_logger.critical(f'There was an error determining the filetype, the file {inputs[i]} did not match any format')
             continue
         exploit_found = False
 
@@ -191,8 +193,10 @@ def run():
                 file_input = read_xml_file(inputs[i])
             
             if file_input is None:
-                print(f"Couldn't read in file input for {inputs[i]} of file_type {file_input}")
+                fuzzer_logger.critical(f"Couldn't read in file input for {inputs[i]} of file_type {file_input}")
                 break
+            else:
+                fuzzer_logger.debug(f'file input: {file_input}')
 
             # 2) Extract data types of data structures within file
 
@@ -211,8 +215,10 @@ def run():
                 # print(file_data_types)
                 # sys.exit()
             if file_data_types is None:
-                print(f"Couldn't extract data structure types for {inputs[i]}")
+                fuzzer_logger.critical(f"Couldn't extract data structure types for {inputs[i]}")
                 break
+            else:
+                fuzzer_logger.debug(f'file data types: {file_data_types}')
 
             # 3) Initialise fuzzer for respective type of file
 
@@ -230,12 +236,12 @@ def run():
                 fuzzer = xml_fuzz_processor(file_input, file_data_types)
             
             if fuzzer is None:
-                print(f"Couldn't create fuzzer for {inputs[i]}")
+                fuzzer_logger.critical(f"Couldn't create fuzzer for {inputs[i]}")
                 break
+            else:
+                fuzzer_logger.debug(f'Fuzzer: {fuzzer}')
 
             complete = False
-
-            prev_mod_input = None
 
             while True:
 
@@ -243,9 +249,10 @@ def run():
 
                 try:
                     mod_input = next(fuzzer)
-                    # print(prev_mod_input == mod_input)
+                    fuzzer_logger.debug(f'the modified input: {mod_input}')
                 except StopIteration:
-                    print(f'Program {programs[i]} not exploited, going to next...')
+                    print(f'Program {programs[i]}: NOT exploited, going to next...')
+                    fuzzer_logger.critical(f'Program: {programs[i]}: NOT exploited')
                     complete = True
                     break
                 
@@ -266,9 +273,14 @@ def run():
                     binary_input = write_xml_input(mod_input)
                 
                 if binary_input is None:
-                    print(f"Couldn't convert mutated fuzzer output into input for {inputs[i]}")
+                    fuzzer_logger.critical(f"Couldn't convert mutated fuzzer output into input for {inputs[i]}")
                     complete = True
                     break
+                else:
+                    if isinstance(binary_input, str):
+                        fuzzer_logger.debug(f'Binary input: {binary_input[:20]}')
+                    else:
+                        fuzzer_logger.debug(f'Binary input {binary_input}')
                 
 
                 bin_mode = 'TEXT'
@@ -284,11 +296,12 @@ def run():
                 elif file_type == FileType.XML:
                     bin_mode = 'BINARY'
                 
-                print(f'running program {programs[i]}')
+                fuzzer_logger.debug(f'Running program {program}...')
                 exploit_found = run_program(programs[i], binary_input, mode=bin_mode)
                 if exploit_found:
                     write_bad_file(binary_input, programs[i], bin_mode)
-                    print(f'Program {programs[i]} exploited, going to next...')
+                    print(f'Program {programs[i]}: EXPLOITED, going to next...')
+                    fuzzer_logger.critical(f'Program {programs[i]}: EXPLOITED')
                     complete = True
                     break
 

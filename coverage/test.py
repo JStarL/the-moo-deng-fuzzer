@@ -1,5 +1,5 @@
 from binary import Binary
-from graph import Function
+from graph import ControlFlowGraph
 
 binary = "../binaries/csv1"
 
@@ -33,5 +33,5 @@ for item in test:
         print(f"fail: { hex( block.get('fail', 0) ) }")
         print()
 
-func = Function(binary=cov, main_addr=addr)
+func = ControlFlowGraph(binary=cov, main_addr=addr)
 

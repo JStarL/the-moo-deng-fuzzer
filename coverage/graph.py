@@ -1,7 +1,7 @@
 from graph_tool.all import Graph
 from binary import Binary
 
-class Graph:
+class ControlFlowGraph:
     def __init__(self, main_addr: int, binary: Binary) -> None:
         """Initialise a new instance of the `Graph` class
 

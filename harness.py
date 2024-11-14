@@ -2,7 +2,7 @@ from json_parser import read_json_input, process_json, json_fuzz_processor
 from csv_parser import read_csv_file, process_csv, csv_fuzz_processor
 from jpeg_parser import read_jpg_file, process_jpeg, jpeg_fuzz_processor
 from plaintext_parser import read_txt_file, process_txt, write_binary_input, txt_fuzz_processor
-from xml_parser import read_xml_file, process_xml, xml_fuzz_processor, write_xml_input
+from xml_parser import read_xml_file, process_xml, xml_fuzz_processor
 import json
 import io
 import sys
@@ -24,9 +24,9 @@ programs = [
     # './binaries/plaintext1',
     # './binaries/plaintext2',
     # './binaries/plaintext3',
-    './binaries/xml1',
+    # './binaries/xml1',
     './binaries/xml2',
-    './binaries/xml3',
+    # './binaries/xml3',
 ]
 inputs = [
     # './example_inputs/json1.txt',
@@ -37,9 +37,9 @@ inputs = [
     # './example_inputs/plaintext1.txt',
     # './example_inputs/plaintext2.txt',
     # './example_inputs/plaintext3.txt',
-    './example_inputs/xml1.txt',
+    # './example_inputs/xml1.txt',
     './example_inputs/xml2.txt',
-    './example_inputs/xml3.txt',
+    # './example_inputs/xml3.txt',
 ]
 
 # programs = ['/binaries/jpg1']
@@ -249,7 +249,7 @@ def run():
 
                 curr_time = time.time()
 
-                if curr_time - start_time >= 75:
+                if curr_time - start_time >= 300:
                     fuzzer_logger.critical(f'Could not exploit {program} in time')
                     complete = True
                     break
@@ -265,9 +265,12 @@ def run():
 
 
                 except StopIteration:
+                    print('mod_input: {}'.format(mod_input))
+
                     print(f'Program {programs[i]}: NOT exploited, going to next...')
                     fuzzer_logger.critical(f'Program: {programs[i]}: NOT exploited')
                     complete = True
+                    # continue
                     break
                 
                 # 5) Convert mutated input into a format which can be input into binary
@@ -284,8 +287,9 @@ def run():
                     # print('mod_input:', mod_input)
                     binary_input = write_binary_input(mod_input)
                 elif file_type == FileType.XML:
-                    binary_input = write_xml_input(mod_input)
-                
+                    # binary_input = write_xml_input(mod_input)
+                    binary_input = mod_input
+
                 if binary_input is None:
                     fuzzer_logger.critical(f"Couldn't convert mutated fuzzer output into input for {inputs[i]}")
                     complete = True
@@ -314,8 +318,8 @@ def run():
                 exploit_found = run_program(programs[i], binary_input, mode=bin_mode)
                 if exploit_found:
                     write_bad_file(binary_input, programs[i], bin_mode)
-                    print(f'Program {programs[i]}: EXPLOITED, going to next...')
-                    fuzzer_logger.critical(f'Program {programs[i]}: EXPLOITED')
+                    print(f'Program {programs[i]}: EXPLOITED, time:{time.time()-start_time} going to next...')
+                    fuzzer_logger.critical(f'Program {programs[i]}: EXPLOITED, time: {time.time()-start_time} ')
                     complete = True
                     break
 

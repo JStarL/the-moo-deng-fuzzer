@@ -1,17 +1,18 @@
+import time
 from typing import Iterator, Dict
 import xml.etree.ElementTree as xml
 import subprocess
 from mutations.buffer_overflow import buffer_overflow_mutation
-from mutations.format_str import random_combined_injection, data_injection, boundary_value_injection, format_injection, \
+from mutations.format_str import data_injection, boundary_value_injection, format_injection, \
     long_format_specifier, boundary_str_injection
 from mutations.integer_mutations import to_str, to_hex, nearby_special_intbytes
-from mutations.kv_mutations import random_keys, del_keys, add_keys, update_keys, update_values
+from mutations.kv_mutations import del_keys, add_keys, update_keys, update_values
 import base64
 
 Mutators = [format_injection, long_format_specifier, data_injection, boundary_value_injection, boundary_str_injection,
-            to_str, to_hex, buffer_overflow_mutation, random_combined_injection]
+            to_str, to_hex, ]
 
-KV_Mutators = [random_keys, del_keys, add_keys, update_keys, update_values]
+KV_Mutators = [del_keys, update_keys, update_values, add_keys]
 def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
     try:
         root = xml.fromstring(xml_content)
@@ -19,7 +20,7 @@ def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
         return
 
     for el in root.iter():
-        print(f'tag: {el.tag}')
+        # print(f'tag: {el.tag}')
 
         # Use the element's tag if available, otherwise use the default payload
         tag_to_mutate = el.tag.encode() if el.tag is not None else ''
@@ -38,6 +39,23 @@ def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
                 yield xml.tostring(root)
 
 
+def xml_nested_mutation(xml_content: bytes, max_depth: int = 2**32) -> Iterator[bytes]:
+    try:
+        root = xml.fromstring(xml_content)
+    except xml.ParseError:
+        return
+
+    nested_xml = "%n" * 2**10
+
+    # 一次性生成最大深度嵌套
+    for idx in range(1, max_depth + 1):
+        nested_xml = f"<{idx}>{nested_xml}</{idx}>"
+
+        if idx % 100000 == 0:
+            print(idx)
+            yield nested_xml.encode()
+
+
 def xml_attr_mutation(xml_content: bytes) -> Iterator[bytes]:
     try:
         root = xml.fromstring(xml_content)
@@ -47,7 +65,7 @@ def xml_attr_mutation(xml_content: bytes) -> Iterator[bytes]:
     for el in root.iter():
         original_attrib = el.attrib.copy() if el.attrib else {}
 
-        print(f"Original attrib for tag '{el.tag}': {original_attrib}")
+        # print(f"Original attrib for tag '{el.tag}': {original_attrib}")
 
         for mutator in KV_Mutators:
             for mutated_attrib in mutator(original_attrib):
@@ -68,10 +86,10 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
     except xml.ParseError:
         return
     for el in root.iter():
-        print(f'text: {el.text}')
+        # print(f'text: {el.text}')
 
         # Use the element's tag if available, otherwise use the default payload
-        tag_to_mutate = el.text.encode() if el.text is not None else ''
+        tag_to_mutate = el.text.encode() if el.text is not None else b''
 
         for mutator in Mutators:
             for mutation in mutator(tag_to_mutate):
@@ -83,7 +101,7 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
                     # Fallback to Base64 encoding if UTF-8 decoding fails
                     el.text = base64.b64encode(mutation).decode('ascii')
 
-                print(f'text to mutation: {mutation}')
+                # print(f'text to mutation: {mutation}')
                 yield xml.tostring(root)
 
 
@@ -109,6 +127,8 @@ def run_c_program_with_pdf(prog_path, pdf_data):
 
 def load_and_mutate_xml(prog_path, file_path):
     """Load XML from a file, apply all mutations, and run each mutated version with the C program."""
+    start = time.time()
+
     try:
         with open(file_path, 'rb') as file:
             xml_content = file.read()
@@ -116,31 +136,35 @@ def load_and_mutate_xml(prog_path, file_path):
         # Define mutation functions and their descriptions
         mutation_functions = [
             # ("tag", xml_tag_mutation),
-            ("attribute", xml_attr_mutation),
+            # ("attribute", xml_attr_mutation),
             # ("text", xml_text_mutation),
-            # ("nest", xml_nested_mutation)
+            ("nest", xml_nested_mutation),
         ]
 
         # Run each type of mutation
         i = 0
         for mutation_type, mutation_func in mutation_functions:
             for mutation_index, mutated_xml_data in enumerate(mutation_func(xml_content)):
-                i += 1
-                if i % 100 == 0:
-                    print('i: {}'.format(i))
-                result_mutated = run_c_program_with_pdf(prog_path, mutated_xml_data)
 
-                # print(xml_content)
-                print(mutated_xml_data.decode(), "\n")
-                # print("C program stderr:", result_mutated.stderr.decode(errors="ignore"))
+                result = run_c_program_with_pdf(prog_path, mutated_xml_data)
 
+                exit_codes = {
+                    -11: 'segfault',
+                    -6: 'abort',
+                    -5: 'sigtrap',
+                    -3: 'abort',
+                    134: 'abort'
+                }
+                if result.returncode in exit_codes.keys():
+                    print(f'time: {time.time()-start}, Exploit Return Code: {result.returncode}')
+                    break
     except FileNotFoundError:
         print(f"Error: File {file_path} not found.")
 
 
 if __name__ == "__main__":
     # Example usage
-    prog_path = './xml3'  # Path to the compiled C program
-    input_file = 'xml0.txt'  # Path to the input XML file
-
+    prog_path = './xml2'  # Path to the compiled C program
+    input_file = 'xml2.txt'  # Path to the input XML file
     load_and_mutate_xml(prog_path, input_file)
+

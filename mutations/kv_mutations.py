@@ -1,6 +1,6 @@
 from typing import Iterator, Dict
 from mutations.buffer_overflow import buffer_overflow_mutation
-from mutations.format_str import random_combined_injection, data_injection, boundary_value_injection, format_injection, \
+from mutations.format_str import data_injection, boundary_value_injection, format_injection, \
     long_format_specifier, boundary_str_injection
 from mutations.integer_mutations import to_str, to_hex, nearby_special_intbytes
 import random
@@ -9,11 +9,10 @@ mutators = [data_injection,
             boundary_str_injection,
             format_injection,
             long_format_specifier,
-            random_combined_injection,
             to_hex,
             nearby_special_intbytes,
             boundary_value_injection,
-            buffer_overflow_mutation
+            # buffer_overflow_mutation
             ]
 
 import base64
@@ -80,9 +79,8 @@ def add_keys(kv: Dict) -> Iterator[Dict]:
         for m in mutator(b''):
             mutated_key = m.decode(errors="ignore")
 
-            # 创建字典副本并添加新的 key-value 对
             mod_dict = kv.copy()
-            mod_dict[mutated_key] = mutated_key  # 使用变异后的键和值
+            mod_dict[mutated_key] = mutated_key
 
             yield mod_dict
 

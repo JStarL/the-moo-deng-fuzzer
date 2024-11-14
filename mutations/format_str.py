@@ -8,8 +8,6 @@ def data_injection(data: bytes) -> Iterator[bytes]:
     """
     for spec in INJECTION_PAYLOADS:
         yield spec
-        yield data + b" " + spec
-        yield spec + b" " + data
 
 def boundary_str_injection(data: bytes) -> Iterator[bytes]:
     """
@@ -26,8 +24,7 @@ def format_injection(data: bytes) -> Iterator[bytes]:
     """
     for spec in format_specifiers:
         # yield data + b"" + spec
-        yield spec + b" " + data
-        # yield spec
+        yield spec + data
 
 
 def long_format_specifier(data: bytes) -> Iterator[bytes]:
@@ -35,9 +32,7 @@ def long_format_specifier(data: bytes) -> Iterator[bytes]:
     Inject long format specifiers (e.g., %1000x) to test edge cases.
     """
     for spec in long_specs:
-        yield spec
-        yield data + b"" + spec
-        yield spec + b"" + data
+        yield spec + data
 
 
 def boundary_value_injection(data: bytes) -> Iterator[bytes]:
@@ -51,19 +46,19 @@ def boundary_value_injection(data: bytes) -> Iterator[bytes]:
         yield boundary_bytes + data + boundary_bytes
 
 
-def random_combined_injection(data: bytes) -> Iterator[bytes]:
-    """
-    Randomly combines the above injection methods for more comprehensive testing.
-    """
-    injections = [
-        format_injection,
-        long_format_specifier,
-        boundary_value_injection
-    ]
-    for _ in range(10):  # Generate 10 random combined mutations
-        chosen_injection = random.choice(injections)
-        for mutation in chosen_injection(data):
-            yield mutation
+# def random_combined_injection(data: bytes) -> Iterator[bytes]:
+#     """
+#     Randomly combines the above injection methods for more comprehensive testing.
+#     """
+#     injections = [
+#         format_injection,
+#         long_format_specifier,
+#         boundary_value_injection
+#     ]
+#     for _ in range(10):  # Generate 10 random combined mutations
+#         chosen_injection = random.choice(injections)
+#         for mutation in chosen_injection(data):
+#             yield mutation
 
 
 if __name__ == "__main__":

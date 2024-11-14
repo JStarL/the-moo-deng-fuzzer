@@ -3,7 +3,7 @@ from typing import Generator
 from mutations.integer_mutations import nearby_special_ints, to_str, random_ints, nearby_special_ints_add_buf
 from mutations.buffer_overflow import buffer_overflow_mutation
 from mutations.bit_flip import random_partial_flip
-from mutations.format_str import format_injection, boundary_value_injection, long_format_specifier, random_combined_injection, data_injection
+from mutations.format_str import format_injection, boundary_value_injection, long_format_specifier, data_injection
 from logger import fuzzer_logger
 
 class FieldType(Enum):

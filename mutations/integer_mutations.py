@@ -35,9 +35,8 @@ def nearby_special_ints(extent: int = 0) -> Iterator[int]:
         yield from nearby_ints(i, extent)
 
 
-
 def nearby_special_intbytes(sample_inputs: bytes) -> Iterator[bytes]:
-    """Generates nearby integers for special values in the list SPECIAL_INTS, outputting them as bytes.
+    """Generates nearby integers for special values in the list SPECIAL_INTS, converting them to strings and then to bytes.
 
     Args:
         sample_inputs (bytes): The input data.
@@ -47,12 +46,11 @@ def nearby_special_intbytes(sample_inputs: bytes) -> Iterator[bytes]:
     """
     for i in SPECIAL_INTS:
         try:
-            # Calculate the minimum byte length needed to represent the integer
-            byte_length = (i.bit_length() + 7) // 8 or 1  # Ensure at least 1 byte for zero
-            yield i.to_bytes(length=byte_length, byteorder="little", signed=True)
+            # Convert integer to string, then encode as bytes
+            yield str(i).encode('utf-8')
         except OverflowError:
-            # If still an issue, fall back to a larger length (e.g., 8 bytes)
-            yield i.to_bytes(length=8, byteorder="little", signed=True)
+            continue
+
 
 def nearby_special_ints_add_buf(extent: int) -> Iterator[bytes]:
     """Combines nearby integers with buffer overflow mutations.

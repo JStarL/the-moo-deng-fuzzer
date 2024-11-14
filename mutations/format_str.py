@@ -1,8 +1,6 @@
 from typing import Iterator
 import random
 from .special_values import INJECTION_PAYLOADS, BOUNDARY_VALUES, BOUNDARY_CHAR_STRINGS, long_specs, format_specifiers
-import itertools
-
 
 def data_injection(data: bytes) -> Iterator[bytes]:
     """
@@ -28,9 +26,9 @@ def format_injection(data: bytes) -> Iterator[bytes]:
     Inject common format specifiers (e.g., %s, %d, %x) into the byte sequence.
     """
     for spec in format_specifiers:
-        yield spec
         yield data + b"" + spec
         yield spec + b"" + data
+        yield spec
 
 
 def long_format_specifier(data: bytes) -> Iterator[bytes]:

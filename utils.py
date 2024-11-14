@@ -4,6 +4,7 @@ from mutations.integer_mutations import nearby_special_ints, to_str
 from mutations.buffer_overflow import buffer_overflow_mutation
 from mutations.bit_flip import random_partial_flip
 from mutations.format_str import format_injection, boundary_value_injection, long_format_specifier, random_combined_injection, data_injection
+from logger import fuzzer_logger
 
 class FieldType(Enum):
     INTEGER = int,
@@ -55,34 +56,26 @@ def float_fuzzer():
     for i in lst:
         yield i
 
-def string_buffer_overflow():
-    yield from buffer_overflow_mutation()
-
-def string_fuzzer():
-    yield from to_str()
-
 def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Generator[any, None, None]:
-
-    # print('field_type:', field_type)
-    # print('field_name:', field_name)
-    # print('field value:', field_value)
+    
+    fuzzer_logger.debug('Start field fuzzer: ' + f'field_type: {field_type}' + f'field_name: {field_name}' + f'field value: {field_value}')
 
     fuzzers = []
 
     if field_type == FieldType.INTEGER:
         
         fuzzers.append(integer_fuzzer())
-        fuzzers.append(string_buffer_overflow())
+        fuzzers.append(buffer_overflow_mutation())
 
     elif field_type == FieldType.FLOAT:
        
         fuzzers.append(float_fuzzer())
-        fuzzers.append(string_buffer_overflow())
+        fuzzers.append(buffer_overflow_mutation())
 
     elif field_type == FieldType.STRING:
         
-        fuzzers.append(string_fuzzer())
-        fuzzers.append(string_buffer_overflow())
+        fuzzers.append(to_str())
+        fuzzers.append(buffer_overflow_mutation())
         # fuzzers.append(random_partial_flip(field_value))
 
         if isinstance(field_value, str):
@@ -114,7 +107,7 @@ def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Ge
 
         i += 1    
     
-    print(f"Fuzzing {field_name} is complete")
+    fuzzer_logger.debug(f"End field fuzzer: Fuzzing {field_name} is complete")
 
 '''
 def determine_input_type_old(string: str) -> FieldType:

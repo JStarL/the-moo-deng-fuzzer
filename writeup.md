@@ -7,18 +7,6 @@ z5437039 - Antheo Raviel Santosa
 
 z5408331 - Halliya Hyeryeon UM
 
-# How to build and run the Docker container
-
-* `docker build -t comp6447-fuzzer .`
-* `docker run -it comp6447-fuzzer`
-
-## Docker command lines to use..
-```
-docker build -t $IMAGE_NAME . # build the docker image
-docker run -it $IMAGE_NAME $CONTAINER_NAME # instantiates a new container from the image and run the default command
-docker exec -it $CONTAINER_NAME # use an existing container and run it 
-```
-
 # Fuzzer
 
 The fuzzer designed so far is an inital attempt at creating an appropriate, extensible infrastructure which can be used to create a full fledge black box testing system. It is elementary, in the sense that there are a few mutations elaborated on under the *Mutations* section below, and it only caters to JSON and CSV files, as per the requirements of the Mid-point checkin.
@@ -89,3 +77,37 @@ These functions focus on mutating input by repeating certain portions of the inp
 * `repeat_last_keyword(input: List[str], keywords: List[str])`:
     * Repeats the last keyword from a list of strings multiple times. This can test how systems handle repeated fields or values within structured data.
 
+
+# Log
+### Logger diagram
+![logger_diagram](./logger%20diagram.png)
+`logger.py` : Create and set up the log file with configuration depending on sys.argv (log file flag type)
+
+`fuzzer.log` : stored log file for the fuzzer
+
+`harness.py` : creates log and stores it in fuzzer.log file
+
+### Details of Log File format
+```
+format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s
+```
+* **%(asctime)s**: time when log is created
+* **%(levelname)s**: level of log _(NOTSET=0, DEBUG=10, INFO=20, WARN=30, ERROR=40, and CRITICAL=50)_
+* **%(pathname)s**: path of the file where the log is created
+* **%(lineno)d**: line number where the log is created
+* **%(message)s**: detailed log message
+
+# Bugs that can be found using moo-deng fuzzer
+* buffer overflow
+* format string
+* ...
+
+# Possible improvements suggestion
+**Log**
+* Adding vulnerability type and file extension type to log message was our plan, but couldn't finish it due to time constraint.
+
+**Mutation**
+
+**Harness**
+
+**Memory Capture????**

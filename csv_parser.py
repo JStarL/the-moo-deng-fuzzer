@@ -9,7 +9,7 @@ def read_csv_file(file_path: str) -> List[List[str]]:
 
     with open(file_path, mode='r') as file:
         csv_reader = csv.reader(file)
-    
+
         for row in csv_reader:
             data.append(row)
 
@@ -25,7 +25,6 @@ def process_csv(csv_ds: List[List[str]]) -> List[List[FieldType]]:
     return type_ds
 
 def csv_fuzz_processor(csv_input: List[List[str]], csv_type: List[List[FieldType]]) -> Iterator[List[List[str]]]:
-    
     csv_input_curr = copy.deepcopy(csv_input)
     # Try row based fuzzing before trying each element fuzzing
     for i, row in enumerate(csv_input_curr):
@@ -44,7 +43,7 @@ def csv_fuzz_processor(csv_input: List[List[str]], csv_type: List[List[FieldType
 
     i, j = 0, 0
     while i < len(csv_input_curr):
-        
+
         # Do a round robin of each row of the csv input at a time
         # NOTE: Do we need to process rows[2:]? Do we need to do all of them? Or is just one of them representative enough?
         # The top row of the csv_type ds will contain the current csv_input row's type information
@@ -66,5 +65,5 @@ def csv_fuzz_processor(csv_input: List[List[str]], csv_type: List[List[FieldType
                     count_done += 1
 
             j += 1
-        
+
         i += 1

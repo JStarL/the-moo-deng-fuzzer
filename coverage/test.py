@@ -33,5 +33,12 @@ for item in test:
         print(f"fail: { hex( block.get('fail', 0) ) }")
         print()
 
-func = ControlFlowGraph(binary=cov, main_addr=addr)
+cfg = ControlFlowGraph(
+        binary      = cov, 
+        main_addr   = addr,
+    )
 
+for vertex in cfg.graph.get_vertices():
+    print(f"Vertex {vertex} has value {hex( cfg.offset_map[vertex] )} and points to {cfg.graph.get_all_neighbors(vertex)}")
+
+print(f"There are { len(blocks) } blocks")

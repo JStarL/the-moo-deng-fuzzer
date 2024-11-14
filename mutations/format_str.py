@@ -66,8 +66,8 @@ def format_injection(data: bytes) -> Iterator[bytes]:
     ]
     for spec in format_specifiers:
         yield spec
-        yield data + b" " + spec
-        yield spec + b" " + data
+        yield data + b"" + spec
+        yield spec + b"" + data
 
 
 def long_format_specifier(data: bytes) -> Iterator[bytes]:
@@ -96,16 +96,10 @@ def long_format_specifier(data: bytes) -> Iterator[bytes]:
         b"%jx",  # Prints pointer-sized integer, common on POSIX systems
     ]
     
-    if isinstance(data, bytes):
-        try:
-            data = data.decode('utf-8')
-        except:
-            pass
-    
     for spec in long_specs:
         yield spec
-        yield data + b" " + spec
-        yield spec + b" " + data
+        yield data + b"" + spec
+        yield spec + b"" + data
 
 
 def boundary_value_injection(data: bytes) -> Iterator[bytes]:

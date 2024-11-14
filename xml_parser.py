@@ -41,7 +41,7 @@ def xml_text_mutation(xml_tree: xml.ElementTree, xml_type: xml.ElementTree, type
 
     tree_root = xml_tree.getroot()
     tree_elems = list(tree_root.iter())
-    print(tree_elems)
+    # print(tree_elems)
 
     fuzzers = list(tree_elems)
     complete = [False] * len(tree_elems)
@@ -77,7 +77,7 @@ def xml_text_mutation(xml_tree: xml.ElementTree, xml_type: xml.ElementTree, type
         try:
             mutation = next(fuzzers[i])
         except StopIteration:
-            print(f'Finished field fuzzer at {i}')
+            # print(f'Finished field fuzzer at {i}')
             complete[i] = True
             complete_count += 1
             i += 1

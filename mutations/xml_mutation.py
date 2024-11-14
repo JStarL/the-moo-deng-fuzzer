@@ -2,11 +2,12 @@ from typing import Iterator
 import xml.etree.ElementTree as xml
 import subprocess
 from mutations.buffer_overflow import buffer_overflow_mutation
-from mutations.format_str import random_combined_injection, data_injection
+from mutations.format_str import random_combined_injection, data_injection, boundary_value_injection
 from mutations.integer_mutations import to_str, to_hex
 
+MAX_DEPTH_NEST = 150
 
-Mutators = [random_combined_injection,data_injection, data_injection, buffer_overflow_mutation, to_str, to_hex]
+Mutators = [random_combined_injection, data_injection, boundary_value_injection, buffer_overflow_mutation, to_str, to_hex]
 
 
 # XML tag mutation
@@ -74,7 +75,7 @@ def load_and_mutate_xml(prog_path, file_path):
         # Define mutation functions and their descriptions
         mutation_functions = [
             ("tag", xml_tag_mutation),
-            ("attribute", xml_attr_mutation),
+            ("attribute", xml_attr_text_mutation),
             ("text", xml_text_mutation)
         ]
 
@@ -89,9 +90,9 @@ def load_and_mutate_xml(prog_path, file_path):
     except FileNotFoundError:
         print(f"Error: File {file_path} not found.")
 
+if __name__ == "__main__":
+    # Example usage
+    prog_path = './xml3'  # Path to the compiled C program
+    input_file = 'xml3.txt'  # Path to the input XML file
 
-# Example usage
-prog_path = './xml3'  # Path to the compiled C program
-input_file = 'xml3.txt'  # Path to the input XML file
-
-load_and_mutate_xml(prog_path, input_file)
+    load_and_mutate_xml(prog_path, input_file)

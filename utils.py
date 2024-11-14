@@ -3,8 +3,7 @@ from typing import Generator
 from mutations.integer_mutations import nearby_special_ints, to_str
 from mutations.buffer_overflow import buffer_overflow_mutation
 from mutations.bit_flip import random_partial_flip
-from mutations.format_str import format_injection, boundary_value_injection, long_format_specifier
-import copy
+from mutations.format_str import format_injection, boundary_value_injection, long_format_specifier, random_combined_injection, data_injection
 
 class FieldType(Enum):
     INTEGER = int,
@@ -64,6 +63,10 @@ def string_fuzzer():
 
 def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Generator[any, None, None]:
 
+    # print('field_type:', field_type)
+    # print('field_name:', field_name)
+    # print('field value:', field_value)
+
     fuzzers = []
 
     if field_type == FieldType.INTEGER:
@@ -81,16 +84,11 @@ def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Ge
         fuzzers.append(string_fuzzer())
         fuzzers.append(string_buffer_overflow())
         # fuzzers.append(random_partial_flip(field_value))
-        
-        field_value_mod = copy.copy(field_value)
-        if isinstance(field_value_mod, bytes):
-            try:
-                field_value_mod = field_value_mod.decode()
-            except:
-                field_value_mod = 'Test'
-        fuzzers.append(format_injection(field_value_mod))
-        fuzzers.append(long_format_specifier(field_value_mod))
-        fuzzers.append(boundary_value_injection(field_value_mod))
+        fuzzers.append(random_combined_injection(field_value))
+        fuzzers.append(format_injection(field_value))
+        fuzzers.append(data_injection(field_value))
+        fuzzers.append(long_format_specifier(field_value))
+        fuzzers.append(boundary_value_injection(field_value))
         # fuzzers.append(random_partial_flip(field_value))
 
     elif field_type == FieldType.BYTES:

@@ -16,11 +16,12 @@ def logger_setup(log_type):
                             level=logging.INFO)
 
     # format of the log - timestamp, vulns type + file extension type, file path, error line
+    '''
     log_format = logging.Formatter(
         %(%d %m, %Y %H:%M:%S)s - %(vultype)s %(\n)s %(fileextension)s %(filepath)s
     )
     log_file.setFormatter(log_format)
-
+    '''
     return logger
 
 def 

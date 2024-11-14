@@ -1,5 +1,4 @@
 from main import Binary
-import json
 
 binary = "../binaries/csv1"
 

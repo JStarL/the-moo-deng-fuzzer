@@ -9,11 +9,6 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    laplace = {
-      url = "github:dysthesis/laplace";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = inputs @ {flake-parts, ...}: let
@@ -46,26 +41,13 @@
             pyright
             black
 
-            # C
-            clang-tools
-
             # Standard nix stuff
             statix
             deadnix
             nil
             alejandra
-
-            # rop
-            one_gadget
-            inputs'.laplace.packages.ropr
           ];
-          shellHook =
-            /*
-            sh
-            */
-            ''
-              alias gdb=pwndbggef
-            '';
+          
           NIX_LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs; [
             stdenv.cc.cc
             openssl

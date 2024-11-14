@@ -1,17 +1,21 @@
 from typing import Iterator
 import random
-from special_values import INJECTION_PAYLOADS, BOUNDARY_VALUES, BOUNDARY_CHAR_STRINGS
-
+from .special_values import INJECTION_PAYLOADS, BOUNDARY_VALUES, BOUNDARY_CHAR_STRINGS
+import itertools
 
 def data_injection(data: bytes) -> Iterator[bytes]:
     """
     Inject long format specifiers (e.g., %1000x) to test edge cases.
     """
 
-    for spec in [INJECTION_PAYLOADS, BOUNDARY_VALUES]:
-        yield spec
-        yield data + b" " + spec
-        yield spec + b" " + data
+    for spec in itertools.chain(INJECTION_PAYLOADS, BOUNDARY_VALUES):
+        if isinstance(spec, str):
+            spec_bin = spec.encode('utf-8')
+        else:
+            spec_bin = spec
+        yield spec_bin
+        yield data + b" " + spec_bin
+        yield spec_bin + b" " + data
 
 
 

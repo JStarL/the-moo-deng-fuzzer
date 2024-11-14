@@ -6,6 +6,7 @@ from mutations.buffer_overflow import buffer_overflow_mutation
 from mutations.format_str import random_combined_injection, data_injection, boundary_value_injection
 from mutations.integer_mutations import to_str, to_hex
 from utils import determine_input_type, field_fuzzer
+import sys
 
 # TODO: Deep nesting
 MAX_DEPTH_NEST = 150
@@ -36,12 +37,15 @@ def process_xml(tree: xml.ElementTree):
 
 # XML tag mutation
 def xml_text_mutation(xml_tree: xml.ElementTree, xml_type: xml.ElementTree, type: str) -> Iterator[xml.ElementTree]:
-    
+
+
     tree_root = xml_tree.getroot()
     tree_elems = list(tree_root.iter())
     print(tree_elems)
 
     fuzzers = list(tree_elems)
+    complete = [False] * len(tree_elems)
+    complete_count = 0
 
     for i, field_type in enumerate(xml_type.getroot().iter()):
         tag_val = None
@@ -49,14 +53,16 @@ def xml_text_mutation(xml_tree: xml.ElementTree, xml_type: xml.ElementTree, type
         if type == 'tag':
             tag_val = tree_elems[i].tag
         elif type == 'attr':
+            attr_vals = tree_elems[i].attrib.values()
+            if len(attr_vals) == 0:
+                complete[i] = True
+                complete_count += 1
+                continue
             tag_val = next(iter(tree_elems[i].attrib.values()), b'None')
         elif type == 'text':
             tag_val = tree_elems[i].text
         
         fuzzers[i]  = field_fuzzer(field_type.text, tree_elems[i].tag, tag_val)
-
-    complete = [False] * len(tree_elems)
-    complete_count = 0
 
     i = 0
     while complete_count < len(tree_elems):
@@ -70,8 +76,8 @@ def xml_text_mutation(xml_tree: xml.ElementTree, xml_type: xml.ElementTree, type
 
         try:
             mutation = next(fuzzers[i])
-            print('mutation:', mutation)
-        except:
+        except StopIteration:
+            print(f'Finished field fuzzer at {i}')
             complete[i] = True
             complete_count += 1
             i += 1
@@ -84,7 +90,6 @@ def xml_text_mutation(xml_tree: xml.ElementTree, xml_type: xml.ElementTree, type
         elif type == "text":
             tree_elems[i].text = mutation.decode(errors="ignore")
 
-        print(xml_tree)
         yield xml_tree
 
         i += 1
@@ -181,7 +186,7 @@ def xml_fuzz_processor(tree: xml.ElementTree, file_type_tree: xml.ElementTree) -
     # Define mutation functions and their descriptions
     mutation_functions = [
         xml_text_mutation(tree, file_type_tree, "tag"),
-        xml_text_mutation(tree, file_type_tree, "attribute"),
+        xml_text_mutation(tree, file_type_tree, "attr"),
         xml_text_mutation(tree, file_type_tree, "text"),
     ]
 

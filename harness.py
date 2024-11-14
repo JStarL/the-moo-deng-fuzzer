@@ -23,8 +23,8 @@ programs = [
     './binaries/plaintext2',
     # './binaries/plaintext3',
     './binaries/xml1',
-    './binaries/xml2',
-    './binaries/xml3',
+    # './binaries/xml2',
+    # './binaries/xml3',
 ]
 inputs = [
     './example_inputs/json1.txt',
@@ -36,8 +36,8 @@ inputs = [
     './example_inputs/plaintext2.txt',
     # './example_inputs/plaintext3.txt',
     './example_inputs/xml1.txt',
-    './example_inputs/xml2.txt',
-    './example_inputs/xml3.txt',
+    # './example_inputs/xml2.txt',
+    # './example_inputs/xml3.txt',
 ]
 
 # programs = ['/binaries/jpg1']

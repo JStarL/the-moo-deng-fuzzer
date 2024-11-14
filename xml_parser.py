@@ -203,26 +203,26 @@ def xml_fuzz_processor(tree: xml.ElementTree, file_type_tree: xml.ElementTree) -
         i += 1
 
 
-def load_and_mutate_xml(prog_path, file_path):
-    """Load XML from a file, apply all mutations, and run each mutated version with the C program."""
-    try:
-        with open(file_path, 'rb') as file:
-            xml_content = file.read()
+# def load_and_mutate_xml(prog_path, file_path):
+#     """Load XML from a file, apply all mutations, and run each mutated version with the C program."""
+#     try:
+#         with open(file_path, 'rb') as file:
+#             xml_content = file.read()
 
-        # Define mutation functions and their descriptions
-        mutation_functions = [
-            ("tag", xml_tag_mutation),
-            ("attribute", xml_attr_text_mutation),
-            ("text", xml_text_mutation)
-        ]
+#         # Define mutation functions and their descriptions
+#         mutation_functions = [
+#             ("tag", xml_tag_mutation),
+#             ("attribute", xml_attr_text_mutation),
+#             ("text", xml_text_mutation)
+#         ]
 
-        # Run each type of mutation
-        for mutation_type, mutation_func in mutation_functions:
-            for mutation_index, mutated_xml_data in enumerate(mutation_func(xml_content)):
-                result_mutated = run_c_program_with_pdf(prog_path, mutated_xml_data)
-                # print(xml_content)
-                # print(mutated_xml_data, "\n")
-                # print("C program stderr:", result_mutated.stderr.decode(errors="ignore"))
+#         # Run each type of mutation
+#         for mutation_type, mutation_func in mutation_functions:
+#             for mutation_index, mutated_xml_data in enumerate(mutation_func(xml_content)):
+#                 result_mutated = run_c_program_with_pdf(prog_path, mutated_xml_data)
+#                 # print(xml_content)
+#                 # print(mutated_xml_data, "\n")
+#                 # print("C program stderr:", result_mutated.stderr.decode(errors="ignore"))
 
-    except FileNotFoundError:
-        print(f"Error: File {file_path} not found.")
+#     except FileNotFoundError:
+#         print(f"Error: File {file_path} not found.")

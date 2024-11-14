@@ -160,24 +160,20 @@ def xml_text_mutation(xml_tree: xml.ElementTree, xml_type: xml.ElementTree, type
 #             el.text = mutation.decode(errors="ignore")
 #             yield xml.tostring(root)
 
-def run_c_program_with_pdf(prog_path, pdf_data):
-    """
-    Runs a compiled C program, passing the PDF data as input.
+def depth_mutator(tree: xml.ElementTree, depth: int = 512) -> Iterator[xml.ElementTree]:
+    root = tree.getroot()
 
-    Parameters:
-    - prog_path (str): Path to the compiled C program.
-    - pdf_data (bytes): PDF binary data to be tested.
+    curr_root = root
+    curr_tree = tree
 
-    Returns:
-    - result: CompletedProcess instance containing stdout and stderr from the C program.
-    """
-    result = subprocess.run(
-        [prog_path],
-        input=pdf_data,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-    return result
+    for _ in range(depth):
+        new_root = xml.Element("root")
+        new_root.append(curr_root)
+        curr_root = new_root
+        curr_tree = xml.ElementTree(new_root)
+
+        yield curr_tree
+
 
 def write_xml_input(tree: xml.ElementTree) -> bytes:
     return xml.tostring(tree.getroot(), encoding='utf-8')
@@ -188,6 +184,7 @@ def xml_fuzz_processor(tree: xml.ElementTree, file_type_tree: xml.ElementTree) -
         xml_text_mutation(tree, file_type_tree, "tag"),
         xml_text_mutation(tree, file_type_tree, "attr"),
         xml_text_mutation(tree, file_type_tree, "text"),
+        depth_mutator(tree)
     ]
 
     # print('len mutations:', len(mutation_functions))

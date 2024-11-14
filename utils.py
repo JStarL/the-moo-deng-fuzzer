@@ -84,11 +84,17 @@ def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Ge
         fuzzers.append(string_fuzzer())
         fuzzers.append(string_buffer_overflow())
         # fuzzers.append(random_partial_flip(field_value))
-        fuzzers.append(random_combined_injection(field_value))
-        fuzzers.append(format_injection(field_value))
-        fuzzers.append(data_injection(field_value))
-        fuzzers.append(long_format_specifier(field_value))
-        fuzzers.append(boundary_value_injection(field_value))
+
+        if isinstance(field_value, str):
+            field_value_mod = field_value.encode('utf-8')
+        else:
+            field_value_mod = field_value
+
+        fuzzers.append(random_combined_injection(field_value_mod))
+        fuzzers.append(format_injection(field_value_mod))
+        fuzzers.append(data_injection(field_value_mod))
+        fuzzers.append(long_format_specifier(field_value_mod))
+        fuzzers.append(boundary_value_injection(field_value_mod))
         # fuzzers.append(random_partial_flip(field_value))
 
     elif field_type == FieldType.BYTES:

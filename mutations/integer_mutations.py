@@ -64,7 +64,7 @@ def random_ints(count: int, scope: int, signed: bool = False) -> Iterator[int]:
             yield random.randint(0, scope)
 
 
-def to_str(inputs: bytes, ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
+def to_str(inputs: Optional[bytes] = None, ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
     """Converts integers to their byte-string representations.
 
     Args:

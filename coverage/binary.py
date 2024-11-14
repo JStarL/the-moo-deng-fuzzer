@@ -59,10 +59,9 @@ class Binary:
         self.r2.cmd("ood")
 
         for addr in breakpoints:
-            addr = self.base_addr + addr
             logger.info(f"Adding breakpoint at {hex( addr )}")
-            self.r2.cmd(f"db {addr} if 0")  # Breakpoint with a false condition
-            self.r2.cmd(f"dbc {addr} '!echo \"Passed through address {addr}\"'")  # Log message on hit
+            self.r2.cmd(f"db $DB+{addr}")  # Breakpoint with a false condition
+            self.r2.cmd(f"dbc $DB+{addr} '!echo \"Passed through address {addr}\"'")  # Log message on hit
 
         # Start running
         self.r2.cmd("dc")

@@ -1,0 +1,60 @@
+<html>
+
+
+
+
+<head>
+
+
+
+
+
+
+
+
+<link href="http://somewebsite.com" />
+    </head>
+    <body>
+
+
+
+
+
+
+
+
+<h1>I'm
+not
+a
+web
+developer.</h1>
+    </body>
+
+    <div id="-8796093022208">
+
+
+
+
+
+
+
+
+<a href="%hnhttp://google.com">Here
+is
+some
+link...</a>
+    </div>
+
+
+    <tail>
+
+
+
+
+
+
+
+
+<a%32767x href="%hnhttp://bing.com">Footer link%32767x</a%32767x>
+    </tail>
+</html>

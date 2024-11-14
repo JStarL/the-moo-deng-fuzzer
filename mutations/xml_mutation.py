@@ -11,18 +11,29 @@ Mutators = [format_injection, long_format_specifier, data_injection, boundary_va
             to_str, to_hex, buffer_overflow_mutation, random_combined_injection]
 
 
-# XML tag mutation
 def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
     try:
         root = xml.fromstring(xml_content)
     except xml.ParseError:
         return
+
     for el in root.iter():
-        for mutation in (m for mutator in Mutators for m in mutator(el.tag.encode())):
-            print('tag {}'.format(el.tag))
-            print('mutation {}'.format(mutation))
-            el.tag = mutation.decode()
-            yield xml.tostring(root)
+        # Use the element's tag if available, otherwise use the default payload
+        tag_to_mutate = el.tag.encode() if el.tag is not None else ''
+
+        for mutator in Mutators:
+            for mutation in mutator(tag_to_mutate):
+                print(f'tag: {el.tag}')
+
+                try:
+                    # Attempt to decode as UTF-8
+                    el.tag = mutation.decode('utf-8')
+                except UnicodeDecodeError:
+                    # Fallback to Base64 encoding if UTF-8 decoding fails
+                    el.tag = base64.b64encode(mutation).decode('ascii')
+
+                print(f'to mutation: {mutation}\n')
+                yield xml.tostring(root)
 
 
 def xml_nested_mutation(xml_content: bytes, max_depth: int = 100) -> Iterator[bytes]:
@@ -105,9 +116,9 @@ def load_and_mutate_xml(prog_path, file_path):
         # Define mutation functions and their descriptions
         mutation_functions = [
             ("tag", xml_tag_mutation),
-            ("attribute", xml_attr_text_mutation),
-            ("text", xml_text_mutation),
-            ("nest", xml_nested_mutation)
+            # ("attribute", xml_attr_text_mutation),
+            # ("text", xml_text_mutation),
+            # ("nest", xml_nested_mutation)
         ]
 
         # Run each type of mutation
@@ -116,7 +127,7 @@ def load_and_mutate_xml(prog_path, file_path):
                 result_mutated = run_c_program_with_pdf(prog_path, mutated_xml_data)
                 # print(xml_content)
                 # print(mutated_xml_data, "\n")
-                print("C program stderr:", result_mutated.stderr.decode(errors="ignore"))
+                # print("C program stderr:", result_mutated.stderr.decode(errors="ignore"))
 
     except FileNotFoundError:
         print(f"Error: File {file_path} not found.")

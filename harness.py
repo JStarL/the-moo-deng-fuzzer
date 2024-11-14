@@ -9,6 +9,7 @@ import sys
 import csv
 import xml.etree.ElementTree as xml
 import subprocess
+import time
 from PIL import Image
 from enum import Enum
 from typing import List
@@ -23,8 +24,8 @@ programs = [
     './binaries/plaintext1',
     './binaries/plaintext2',
     # './binaries/plaintext3',
-    # './binaries/xml1',
-    './binaries/xml2',
+    './binaries/xml1',
+    # './binaries/xml2',
     # './binaries/xml3',
 ]
 inputs = [
@@ -36,8 +37,8 @@ inputs = [
     './example_inputs/plaintext1.txt',
     './example_inputs/plaintext2.txt',
     # './example_inputs/plaintext3.txt',
-    # './example_inputs/xml1.txt',
-    './example_inputs/xml2.txt',
+    './example_inputs/xml1.txt',
+    # './example_inputs/xml2.txt',
     # './example_inputs/xml3.txt',
 ]
 
@@ -167,6 +168,7 @@ def determine_file_type(filepath: str) -> FileType:
 
 def run():
     for i, program in enumerate(programs):
+        start_time = time.time()
         fuzzer_logger.debug(f"Program[{i}] = {program} is executing")
         file_type = determine_file_type(inputs[i])
         fuzzer_logger.debug(f'the file inputs[{i}] has file type: {file_type}')
@@ -245,11 +247,23 @@ def run():
 
             while True:
 
+                curr_time = time.time()
+
+                if curr_time - start_time >= 75:
+                    fuzzer_logger.critical(f'Could not exploit {program} in time')
+                    complete = True
+                    break
+
                 # 4) Get next mutated input from fuzzer
 
                 try:
                     mod_input = next(fuzzer)
-                    fuzzer_logger.debug(f'the modified input: {mod_input}')
+                    if isinstance(mod_input, bytes) or isinstance(mod_input, str):
+                        fuzzer_logger.debug(f'the modified input: {mod_input[:20]}')
+                    elif isinstance(mod_input, int):
+                        fuzzer_logger.debug(f'the modified input: {mod_input}')
+
+
                 except StopIteration:
                     print(f'Program {programs[i]}: NOT exploited, going to next...')
                     fuzzer_logger.critical(f'Program: {programs[i]}: NOT exploited')
@@ -277,7 +291,7 @@ def run():
                     complete = True
                     break
                 else:
-                    if isinstance(binary_input, str):
+                    if isinstance(binary_input, str) or isinstance(binary_input, bytes):
                         fuzzer_logger.debug(f'Binary input: {binary_input[:20]}')
                     else:
                         fuzzer_logger.debug(f'Binary input {binary_input}')

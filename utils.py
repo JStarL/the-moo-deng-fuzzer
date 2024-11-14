@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Generator
-from mutations.integer_mutations import nearby_special_ints, to_str
+from mutations.integer_mutations import nearby_special_ints, to_str, random_ints, nearby_special_ints_add_buf
 from mutations.buffer_overflow import buffer_overflow_mutation
 from mutations.bit_flip import random_partial_flip
 from mutations.format_str import format_injection, boundary_value_injection, long_format_specifier, random_combined_injection, data_injection
@@ -49,7 +49,11 @@ def determine_input_type(input: any) -> FieldType:
         return FieldType.STRING
 
 def integer_fuzzer():
+    yield from nearby_special_ints_add_buf(10)
     yield from nearby_special_ints(10)
+    yield from random_ints(528, 2**64, True)
+    yield from random_ints(528, 2**64, False)
+
 
 def float_fuzzer():
     lst = [1.2, 2.3, 4.5, 5.6]

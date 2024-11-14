@@ -1,6 +1,5 @@
 from typing import Dict, List
 import r2pipe
-import json
 import logging
 
 logger = logging.getLogger("coverage")
@@ -18,7 +17,7 @@ class Binary:
 
         Args:
             base_addr: The base address 
-            binary: Path to the target binary
+            binary: Path of the target binary
         """
         logger.info(f"Initialising an instance of `binary` with the base address {base_addr} and ELF file {binary}")
         self.binary = binary
@@ -35,11 +34,12 @@ class Binary:
         logger.info(f"Analysing the binary {self.binary}")
         self.r2.cmd('aaa')
 
+
     def get_blocks(self, addr: int) -> List[Dict[int, int]]:
         """Find the basic blocks in a function
 
         Args:
-            addr: The address to the function
+            addr: The address of the function
 
         Returns:
             A list of dictionaries containing
@@ -54,6 +54,30 @@ class Binary:
             for each basic block.
 
         """
-        result = self.r2.cmd(f"afbj @ {addr}")
-        blocks = json.loads(result)
-        return blocks
+        return self.r2.cmdj(f"afbj @ {addr}")
+
+    def get_graph(self, addr: int) -> List[Dict]:
+        """Get the control flow graph of a function
+
+        Args:
+            addr: The address of the function
+
+        Returns:
+            A list of dictionaries containing
+            
+            - 'name', 
+            - 'offset', 
+            - 'ninstr', 
+            - 'nargs', 
+            - 'nlocals', 
+            - 'size', 
+            - 'stack', 
+            - 'type', and
+            - 'blocks'.
+
+            'blocks' also contains
+
+            - 'jump', which is the address of the instruction that the block jumps to if the comparison returns true, and
+            - 'fail', which is the address of the instruction that the block jumps to otherwise.
+        """
+        return self.r2.cmdj(f"agfj @ {addr}")

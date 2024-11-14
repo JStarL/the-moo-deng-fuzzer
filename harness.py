@@ -24,9 +24,9 @@ programs = [
     # './binaries/plaintext1',
     # './binaries/plaintext2',
     # './binaries/plaintext3',
-    # './binaries/xml1',
+    './binaries/xml1',
     './binaries/xml2',
-    # './binaries/xml3',
+    './binaries/xml3',
 ]
 inputs = [
     # './example_inputs/json1.txt',
@@ -37,9 +37,9 @@ inputs = [
     # './example_inputs/plaintext1.txt',
     # './example_inputs/plaintext2.txt',
     # './example_inputs/plaintext3.txt',
-    # './example_inputs/xml1.txt',
+    './example_inputs/xml1.txt',
     './example_inputs/xml2.txt',
-    # './example_inputs/xml3.txt',
+    './example_inputs/xml3.txt',
 ]
 
 # programs = ['/binaries/jpg1']
@@ -249,7 +249,7 @@ def run():
 
                 curr_time = time.time()
 
-                if curr_time - start_time >= 300:
+                if curr_time - start_time >= 60:
                     fuzzer_logger.critical(f'Could not exploit {program} in time')
                     complete = True
                     break

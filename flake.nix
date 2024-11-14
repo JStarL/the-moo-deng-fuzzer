@@ -37,6 +37,7 @@
               with ps; [
                 r2pipe
                 pillow
+                graph-tool
               ]))
             pyright
             black
@@ -47,7 +48,7 @@
             nil
             alejandra
           ];
-          
+
           NIX_LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs; [
             stdenv.cc.cc
             openssl

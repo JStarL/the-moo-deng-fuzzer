@@ -1,4 +1,5 @@
-from main import Binary
+from binary import Binary
+from graph import Function
 
 binary = "../binaries/csv1"
 
@@ -25,10 +26,12 @@ test = cov.r2.cmdj(f"agfj @ sym.fread_csv_line")
 print(type(test))
 for item in test:
     print(item.keys())
-    for block in item['blocks']:
-        print(f"keys: { block.keys() }")
-        print(f"offset: { block.get('offset', 'None') }")
-        print(f"size: { block.get('size', 'None') }")
-        print(f"jump: { block.get('jump', 'None') }")
-        print(f"fail: { block.get('fail', 'None') }")
+    for block in item["blocks"]:
+        print(f"offset: { hex( block.get('offset', 0) ) }")
+        print(f"size: { hex( block.get('size', 0) ) }")
+        print(f"jump: { hex( block.get('jump', 0) ) }")
+        print(f"fail: { hex( block.get('fail', 0) ) }")
         print()
+
+func = Function(binary=cov, main_addr=addr)
+

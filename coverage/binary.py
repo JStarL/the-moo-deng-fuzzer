@@ -6,7 +6,7 @@ logger = logging.getLogger("coverage")
 logger.setLevel(logging.DEBUG)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
@@ -16,10 +16,12 @@ class Binary:
         """Initialise an instance of the binary class
 
         Args:
-            base_addr: The base address 
+            base_addr: The base address
             binary: Path of the target binary
         """
-        logger.info(f"Initialising an instance of `binary` with the base address {base_addr} and ELF file {binary}")
+        logger.info(
+            f"Initialising an instance of `binary` with the base address {base_addr} and ELF file {binary}"
+        )
         self.binary = binary
         self.base_addr = base_addr
         self.__init_radare2__()
@@ -32,8 +34,7 @@ class Binary:
     def analyse_all(self):
         """Performs a full analysis of the binary."""
         logger.info(f"Analysing the binary {self.binary}")
-        self.r2.cmd('aaa')
-
+        self.r2.cmd("aaa")
 
     def get_blocks(self, addr: int) -> List[Dict[int, int]]:
         """Find the basic blocks in a function
@@ -64,14 +65,14 @@ class Binary:
 
         Returns:
             A list of dictionaries containing
-            
-            - 'name', 
-            - 'offset', 
-            - 'ninstr', 
-            - 'nargs', 
-            - 'nlocals', 
-            - 'size', 
-            - 'stack', 
+
+            - 'name',
+            - 'offset',
+            - 'ninstr',
+            - 'nargs',
+            - 'nlocals',
+            - 'size',
+            - 'stack',
             - 'type', and
             - 'blocks'.
 

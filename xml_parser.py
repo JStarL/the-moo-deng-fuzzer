@@ -11,7 +11,7 @@ def read_xml_file(filepath: str):
         tree = xml.parse(filepath)
         return tree
     except:
-        print(f"Couldn't parse xml file at {filepath}")
+        fuzzer_logger.critical(f"Couldn't parse xml file at {filepath}")
         return None
 
 

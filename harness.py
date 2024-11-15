@@ -300,7 +300,7 @@ def run():
                     binary_input = json.dumps(mod_input).encode()
                 elif file_type == FileType.CSV:
                     binary_input = write_csv_string(mod_input)
-                    print('binay input', binary_input[:100])
+                    # print('binay input', binary_input[:100])
                 elif file_type == FileType.JPEG:
                     binary_input = mod_input
                 elif file_type == FileType.TXT:

@@ -18,13 +18,15 @@ from logger import fuzzer_logger
 programs = [
     # './binaries/json1',
     # './binaries/json2',
-    './binaries/my_json'
+    # './binaries/my_json'
     # './binaries/csv1',
     # './binaries/csv2',
+    # './binaries/my_csv',
     # './binaries/jpg1',
+    # './binaries/my_jpeg'
     # './binaries/plaintext1',
     # './binaries/plaintext2',
-    # './binaries/plaintext3',
+    './binaries/plaintext3',
     # './binaries/xml1',
     # './binaries/xml2',
     # './binaries/xml3',
@@ -32,13 +34,15 @@ programs = [
 inputs = [
     # './example_inputs/json1.txt',
     # './example_inputs/json2.txt',
-    './example_inputs/my_json.txt'
+    # './example_inputs/my_json.txt'
     # './example_inputs/csv1.txt',
     # './example_inputs/csv2.txt'
+    # './example_inputs/my_csv.txt'
     # './example_inputs/jpg1.txt',
+    # './example_inputs/my_jpeg.txt',
     # './example_inputs/plaintext1.txt',
     # './example_inputs/plaintext2.txt',
-    # './example_inputs/plaintext3.txt',
+    './example_inputs/plaintext3.txt',
     # './example_inputs/xml1.txt',
     # './example_inputs/xml2.txt',
     # './example_inputs/xml3.txt',
@@ -53,12 +57,19 @@ class FileType(Enum):
     NULL = 'null'
 
 
+statistics = {
+     # Statistics of fuzzer - fuzzer statistics variables
+    "fuzzer_attempt": 0,
+    "fuzzer_success": 0,
+    "fuzzer_success_rate": 0
+}
+
 def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=0.8) -> bool:
     '''
     True -> Exploit discovered
     False otherwise
     '''
-
+   
     try:
         if mode == 'TEXT':
             result = subprocess.run(prog_path, timeout=timeout, input=input, text=True, universal_newlines=True, stdout=subprocess.PIPE,
@@ -71,18 +82,25 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
 
     exit_codes = {
         -11: 'segfault',
-        -6: 'abort',
+        # -6: 'abort',
         -5: 'sigtrap',
         -3: 'abort',
         134: 'abort'
     }
+
     # print(f'Ran program: {prog_path}, got this result: {result.returncode}')
     if result.returncode in exit_codes.keys():
         # print(f'Exploit discovered: prog_name = {prog_path}, input = {input}, mode = {mode}')
         fuzzer_logger.critical(f'Exploit Return Code: {result.returncode}')
+        statistics["fuzzer_attempt"] += 1
+        statistics["fuzzer_success"] += 1
+        statistics["fuzzer_success_rate"] = statistics["fuzzer_success"] / statistics["fuzzer_attempt"] * 100
+        fuzzer_logger.info('Fuzzer success rate(%d out of %d attempt): %d \%',fuzzer_success, fuzzer_attempt, fuzzer_success_rate )
         return True
 
+    statistics["fuzzer_attempt"] += 1
     fuzzer_logger.debug(f'Normal Return Code: {result.returncode}')
+
     return False
 
 
@@ -168,9 +186,9 @@ def determine_file_type(filepath: str) -> FileType:
 def run():
     for i, program in enumerate(programs):
         start_time = time.time()
-        fuzzer_logger.debug(f"Program[{i}] = {program} is executing")
+        # fuzzer_logger.debug(f"Program[{i}] = {program} is executing")
         file_type = determine_file_type(inputs[i])
-        fuzzer_logger.debug(f'the file inputs[{i}] has file type: {file_type}')
+        # fuzzer_logger.debug(f'the file inputs[{i}] has file type: {file_type}')
         if file_type == FileType.NULL:
             fuzzer_logger.critical(f'There was an error determining the filetype, the file {inputs[i]} did not match any format')
             continue
@@ -197,7 +215,8 @@ def run():
                 fuzzer_logger.critical(f"Couldn't read in file input for {inputs[i]} of file_type {file_input}")
                 break
             else:
-                fuzzer_logger.debug(f'file input: {file_input}')
+                pass
+                # fuzzer_logger.debug(f'file input: {file_input}')
 
             # 2) Extract data types of data structures within file
 
@@ -219,7 +238,8 @@ def run():
                 fuzzer_logger.critical(f"Couldn't extract data structure types for {inputs[i]}")
                 break
             else:
-                fuzzer_logger.debug(f'file data types: {file_data_types}')
+                pass
+                # fuzzer_logger.debug(f'file data types: {file_data_types}')
 
             # 3) Initialise fuzzer for respective type of file
 
@@ -240,7 +260,8 @@ def run():
                 fuzzer_logger.critical(f"Couldn't create fuzzer for {inputs[i]}")
                 break
             else:
-                fuzzer_logger.debug(f'Fuzzer: {fuzzer}')
+                pass
+                # fuzzer_logger.debug(f'Fuzzer: {fuzzer}')
 
             complete = False
 
@@ -257,14 +278,14 @@ def run():
 
                 try:
                     mod_input = next(fuzzer)
-                    if isinstance(mod_input, bytes) or isinstance(mod_input, str):
-                        fuzzer_logger.debug(f'the modified input: {mod_input[:20]}')
-                    elif isinstance(mod_input, int):
-                        fuzzer_logger.debug(f'the modified input: {mod_input}')
+                    # if isinstance(mod_input, bytes) or isinstance(mod_input, str):
+                    #     fuzzer_logger.debug(f'the modified input: {mod_input[:20]}')
+                    # elif isinstance(mod_input, int):
+                    #     fuzzer_logger.debug(f'the modified input: {mod_input}')
 
 
                 except StopIteration:
-                    print('mod_input: {}'.format(mod_input))
+                    # print('mod_input: {}'.format(mod_input))
 
                     print(f'Program {programs[i]}: NOT exploited, going to next...')
                     fuzzer_logger.critical(f'Program: {programs[i]}: NOT exploited')
@@ -294,10 +315,11 @@ def run():
                     complete = True
                     break
                 else:
-                    if isinstance(binary_input, str) or isinstance(binary_input, bytes):
-                        fuzzer_logger.debug(f'Binary input: {binary_input[:20]}')
-                    else:
-                        fuzzer_logger.debug(f'Binary input {binary_input}')
+                    pass
+                    # if isinstance(binary_input, str) or isinstance(binary_input, bytes):
+                    #     fuzzer_logger.debug(f'Binary input: {binary_input[:20]}')
+                    # else:
+                    #     fuzzer_logger.debug(f'Binary input {binary_input}')
                 
 
                 bin_mode = 'TEXT'
@@ -313,7 +335,7 @@ def run():
                 elif file_type == FileType.XML:
                     bin_mode = 'BINARY'
                 
-                fuzzer_logger.debug(f'Running program {program}...')
+                # fuzzer_logger.debug(f'Running program {program}...')
                 exploit_found = run_program(programs[i], binary_input, mode=bin_mode)
                 if exploit_found:
                     write_bad_file(binary_input, programs[i], bin_mode)
@@ -329,6 +351,7 @@ def run():
 
 # The main entry point for execution
 if __name__ == "__main__":
+    statistics = {key: 0 for ket in statistics}
     run()
 
 # def run_old():

@@ -186,7 +186,7 @@ The following diagram describes the structure of the logging mechanism used in t
 During fuzzing,
 
 * `logger.py` sets up the log file, `fuzzer.log`, with configuration depending on `sys.argv` (log file flag type), and
-* `harness.py` records the log depending on event type (log levels with critical, debug and so on) during fuzzing and prompts it as stdout.
+* `harness.py` records the log depending on event type (log levels with critical, debug, and so on) during fuzzing and prompts it as stdout.
 
 ### Details of Log File format
 

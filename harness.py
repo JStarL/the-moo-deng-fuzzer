@@ -58,7 +58,7 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
     True -> Exploit discovered
     False otherwise
     '''
-
+   
     try:
         if mode == 'TEXT':
             result = subprocess.run(prog_path, timeout=timeout, input=input, text=True, universal_newlines=True, stdout=subprocess.PIPE,
@@ -76,12 +76,22 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
         -3: 'abort',
         134: 'abort'
     }
+
+    # Statistics of fuzzer - fuzzer statistics variables
+    fuzzer_attempt = 0
+    fuzzer_success = 0
+    fuzzer_success_rate = (fuzzer_success / fuzzer_attempt) * 100
+
     # print(f'Ran program: {prog_path}, got this result: {result.returncode}')
     if result.returncode in exit_codes.keys():
         # print(f'Exploit discovered: prog_name = {prog_path}, input = {input}, mode = {mode}')
         fuzzer_logger.critical(f'Exploit Return Code: {result.returncode}')
+        fuzzer_success += 1
+        fuzzer_attempt += 1
+        fuzzer_logger.info('Fuzzer success rate(%d out of %d attempt): %d \%',fuzzer_success, fuzzer_attempt, fuzzer_success_rate )
         return True
 
+    fuzzer_attempt += 1
     fuzzer_logger.debug(f'Normal Return Code: {result.returncode}')
     return False
 

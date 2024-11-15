@@ -76,7 +76,7 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
         elif mode == 'BINARY':
             result = subprocess.run(prog_path, timeout=timeout, input=input, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.TimeoutExpired as e:
-        fuzzer_logger.debug(f'Program {prog_path} timed out')
+        # fuzzer_logger.debug(f'Program {prog_path} timed out')
         return False
 
     exit_codes = {

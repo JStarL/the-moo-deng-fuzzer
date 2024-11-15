@@ -351,7 +351,7 @@ def run():
 
 # The main entry point for execution
 if __name__ == "__main__":
-    statistics = {key: 0 for ket in statistics}
+    statistics = {key: 0 for key in statistics}
     run()
 
 # def run_old():

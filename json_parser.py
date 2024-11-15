@@ -60,7 +60,7 @@ def json_fuzz_processor(json_input: Dict, json_type: Dict) -> Generator[Dict, No
         
         try:
             json_input[keys_list[i]] = next(generators[i])
-            print(f'{keys_list[i]}: {json_input[keys_list[i]]}')
+            # print(f'{keys_list[i]}: {json_input[keys_list[i]]}')
             if isinstance(json_input[keys_list[i]], bytes):
                 try:
                     json_input[keys_list[i]] = json_input[keys_list[i]].decode('utf-8')

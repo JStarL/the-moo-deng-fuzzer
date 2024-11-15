@@ -5,6 +5,7 @@ FROM ubuntu:latest
 RUN apt update && apt upgrade -y && apt install -y \
     python3 \
     python3-pil \
+    libcjson-dev \
     python3-graph-tool \
     conda \
     radare2

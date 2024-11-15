@@ -18,12 +18,12 @@ from logger import fuzzer_logger
 programs = [
     './binaries/json1',
     './binaries/json2',
-    './binaries/my_json'
+    './binaries/my_json',
     './binaries/csv1',
     './binaries/csv2',
     './binaries/my_csv',
     './binaries/jpg1',
-    './binaries/my_jpeg'
+    './binaries/my_jpeg',
     './binaries/plaintext1',
     './binaries/plaintext2',
     './binaries/plaintext3',
@@ -34,10 +34,10 @@ programs = [
 inputs = [
     './example_inputs/json1.txt',
     './example_inputs/json2.txt',
-    './example_inputs/my_json.txt'
+    './example_inputs/my_json.txt',
     './example_inputs/csv1.txt',
-    './example_inputs/csv2.txt'
-    './example_inputs/my_csv.txt'
+    './example_inputs/csv2.txt',
+    './example_inputs/my_csv.txt',
     './example_inputs/jpg1.txt',
     './example_inputs/my_jpeg.txt',
     './example_inputs/plaintext1.txt',
@@ -95,11 +95,11 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
         statistics["fuzzer_attempt"] += 1
         statistics["fuzzer_success"] += 1
         statistics["fuzzer_success_rate"] = statistics["fuzzer_success"] / statistics["fuzzer_attempt"] * 100
-        fuzzer_logger.info('Fuzzer success rate(%d out of %d attempt): %d \%',statistics["fuzzer_success"], statistics["fuzzer_attempt"], statistics["fuzzer_success_rate"] )
+        fuzzer_logger.info(f'Fuzzer success rate({statistics["fuzzer_success"]} out of {statistics["fuzzer_attempt"]} attempt): {statistics["fuzzer_success_rate"]}')
         return True
 
     statistics["fuzzer_attempt"] += 1
-    fuzzer_logger.debug(f'Normal Return Code: {result.returncode}')
+    # fuzzer_logger.debug(f'Normal Return Code: {result.returncode}')
 
     return False
 

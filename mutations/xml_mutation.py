@@ -8,6 +8,7 @@ from mutations.format_str import data_injection, boundary_value_injection, forma
 from mutations.integer_mutations import to_str, to_hex, nearby_special_intbytes
 from mutations.kv_mutations import del_keys, add_keys, update_keys, update_values
 import base64
+import copy
 from logger import fuzzer_logger
 
 Mutators = [
@@ -69,10 +70,11 @@ def xml_breadth_mutation(xml_content: bytes) -> Iterator[bytes]:
         root = xml.fromstring(xml_content)
     except xml.ParseError:
         return
+    new_root = copy.deepcopy(root)
     for i in range(len(root)):
         for _ in range(512):
-            root.append(root[i])
-            yield xml.tostring(root)
+            new_root.append(root[i])
+        yield xml.tostring(new_root)
 
 
 def xml_attr_mutation(xml_content: bytes) -> Iterator[bytes]:

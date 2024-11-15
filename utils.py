@@ -62,7 +62,7 @@ def float_fuzzer():
 
 def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Generator[any, None, None]:
     
-    fuzzer_logger.debug('Start field fuzzer: ' + f'field_type: {field_type}' + f'field_name: {field_name}' + f'field value: {field_value}')
+    # fuzzer_logger.debug('Start field fuzzer: ' + f'field_type: {field_type}' + f'field_name: {field_name}' + f'field value: {field_value}')
 
     fuzzers = []
 
@@ -111,7 +111,7 @@ def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Ge
 
         i += 1    
     
-    fuzzer_logger.debug(f"End field fuzzer: Fuzzing {field_name} is complete")
+    # fuzzer_logger.debug(f"End field fuzzer: Fuzzing {field_name} is complete")
 
 '''
 def determine_input_type_old(string: str) -> FieldType:

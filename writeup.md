@@ -198,6 +198,25 @@ format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s
 * **%(lineno)d**: line number where the log is created
 * **%(message)s**: detailed log message
 
+
+# Fuzzer statistics details
+`harness.py`
+
+```
+statistics = {
+     # Statistics of fuzzer - fuzzer statistics variables
+    "fuzzer_attempt": 0,
+    "fuzzer_success": 0,
+    "fuzzer_success_rate": 0
+}
+```
+**^ Structure of python dictionary for fuzzer statistics**
+
+We compare the number of crashes to the number of attempts made by the fuzzer to obtain the current hit rate.
+Every time we successfully find a valid crash due to vulnerability, we will put this fuzzer success rate on the stdout so that user can follow the track of the process.
+
+
+
 # Memory resetting
 
 There were two different approaches that we attempted in order to implement memory resetting, namely
@@ -256,7 +275,10 @@ There also exists a library called `graph_tool` (without an 's'), which caused s
 
 * buffer overflow
 * format string
-* ...
+* bit/byte flip
+* integer mutations
+* keyword mutations
+* special values
 
 # Possible improvements suggestion
 
@@ -265,11 +287,13 @@ There also exists a library called `graph_tool` (without an 's'), which caused s
 * Adding vulnerability type and file extension type to log message was our plan, but couldn't finish it due to time constraint.
 
 **Mutation**
+* integer overflow/underflow is not detectable in our fuzzer
 
 **Harness**
+* (Statistics part) Could’ve made visualisation of the statistics, Potential of race conditions on counting numbers in statistics dictionary if we use multithread
 
-**Memory Capture????**
-
-**In memory resetting**
+**Memory Resetting**
+* mentioned it in previous section
 
 **Implementation of PDF + ELF**
+* due to time constraint, we couldn't implement it but we have a scratch of pdf fuzzer implementation

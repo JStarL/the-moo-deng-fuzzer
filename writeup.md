@@ -213,6 +213,8 @@ statistics = {
 }
 ```
 
+There are six identical dictionaries storing the statistics for the five different file types, along with one unified statistics.
+
 These values are then used to compare the number of crashes to the number of attempts made by the fuzzer, yielding the current hit rate.
 
 Every time we successfully find a valid crash due to vulnerability, we will put this fuzzer success rate on the stdout so that user can follow the track of the process.

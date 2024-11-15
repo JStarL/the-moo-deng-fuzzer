@@ -20,6 +20,14 @@ def repeat_last_keyword(input: List[str], keywords: List[str]) -> Iterator[List[
         mod_input.extend(extra_keywords)
         yield mod_input
 
+def repeat_keyword_end_bytes(input: bytes, keywords: List[bytes]) -> Iterator[bytes]:
+    mod_input = input[:]
+    for i in TRIVAL_POSITIVE_INTS:
+        for keyword in keywords:
+            extra_keywords = b"".join([keyword] * i)
+            mod_input = mod_input + extra_keywords
+            yield mod_input
+
 def repeat_keyword_inplace(input: bytes, keywords: List[bytes]) -> Iterator[bytes]:
     for keyword in keywords:
         i = 0

@@ -136,6 +136,30 @@ format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s
 * **%(lineno)d**: line number where the log is created
 * **%(message)s**: detailed log message
 
+# Memory resetting
+
+There were two different approaches that we attempted in order to implement memory resetting, namely
+
+* running the target binary in a virtual machine, and
+* injecting a fork server into the target binary (à la [american fuzzy lop](https://lcamtuf.coredump.cx/afl/) ).
+
+## Issues with virtualisation
+
+After some attempts and research into the first method, we noticed several issues.
+
+Firstly, signalling the hypervisor to take a snapshot would be challenging to do, given the strict boundaries enforced by the virtual machine. As a consequence, any method for the guest to notify the host incurs a notable delay, which may introduce some unwanted state to the process.
+
+Virtualisation also has its overheads, which will accumulate rapidly if we were to parallelise the fuzzing process.
+
+## Issues with forkserveer
+
+The idea of a forkserver originated from [american fuzzy lop](https://lcamtuf.blogspot.com/2014/10/fuzzing-binaries-without-execve.html). In short, the idea is to
+
+* inject a shim into the target binary, which would stop the execution at some arbitrary point (*e.g.* `main()`), after which it would
+* wait for a signal from the fuzzer, upon which it would fork itself.
+
+It is not conceptually difficult; the shim itself could be something that, say, wraps around `fgets()` and other input-related functions and calls the forkserver to wait. The difficulty lies in writing the shim in assembly. In the end, we end up choosing to forgo this due to time constraints.
+
 # Bugs that can be found using moo-deng fuzzer
 
 * buffer overflow

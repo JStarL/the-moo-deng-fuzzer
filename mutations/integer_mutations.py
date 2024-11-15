@@ -35,7 +35,7 @@ def nearby_special_ints(extent: int = 0) -> Iterator[int]:
         yield from nearby_ints(i, extent)
 
 
-def nearby_special_intbytes(sample_inputs: bytes) -> Iterator[bytes]:
+def nearby_special_intbytes(sample_inputs: Optional[bytes] = None) -> Iterator[bytes]:
     """Generates nearby integers for special values in the list SPECIAL_INTS, converting them to strings and then to bytes.
 
     Args:

@@ -77,6 +77,6 @@ if __name__ == "__main__":
     for mutation in boundary_value_injection(original_data):
         print(mutation)
 
-    print("\nRandom Combined Injection:")
-    for mutation in random_combined_injection(original_data):
-        print(mutation)
+    # print("\nRandom Combined Injection:")
+    # for mutation in random_combined_injection(original_data):
+    #     print(mutation)

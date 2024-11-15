@@ -9,10 +9,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     python3-graph-tool \
     radare2
 
-RUN python3 -m venv /env
-ENV PATH="/env/bin:$PATH"
-RUN pip install r2pipe
-
 # Set the working directory inside the container.
 WORKDIR /app
 

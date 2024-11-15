@@ -249,7 +249,7 @@ def run():
 
                 curr_time = time.time()
 
-                if curr_time - start_time >= 60:
+                if curr_time - start_time >= 75:
                     fuzzer_logger.critical(f'Could not exploit {program} in time')
                     complete = True
                     break

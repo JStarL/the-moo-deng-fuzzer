@@ -108,7 +108,7 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
     except xml.ParseError:
         return
     for el in root.iter():
-        fuzzer_logger.debug(f'xml_text_mutation: tag = {el.tag}')
+        # fuzzer_logger.debug(f'xml_text_mutation: tag = {el.tag}')
 
         # Use the element's tag if available, otherwise use the default payload
         text_to_mutate = el.text.encode() if el.text is not None else b''
@@ -121,9 +121,9 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
             
             try:
                 mutation = next(gens[i])
-                fuzzer_logger.debug(f'mutation: {mutation[:20]}')
+                # fuzzer_logger.debug(f'mutation: {mutation[:20]}')
             except StopIteration:
-                fuzzer_logger.debug(f'xml_text_mutation for {el.tag} = {text_to_mutate}: finished {gens[i]}')
+                # fuzzer_logger.debug(f'xml_text_mutation for {el.tag} = {text_to_mutate}: finished {gens[i]}')
                 gens.pop(i)
                 continue
 

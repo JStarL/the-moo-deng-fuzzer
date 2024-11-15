@@ -92,6 +92,8 @@ def random_partial_flip(data: bytes) -> Iterator[bytes]:
         # Randomly select two unique bit positions in the range 0-7
         bit_index_1, bit_index_2 = random.sample(range(8), 2)
 
+        if not isinstance(data, bytes):
+            data = str(data).encode()
         # Make a mutable copy of the data
         mutated_data = bytearray(data)
 

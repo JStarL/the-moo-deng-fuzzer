@@ -51,19 +51,15 @@ def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
                 yield xml.tostring(root)
 
 
-def xml_nested_mutation(xml_content: bytes, max_depth: int = 2 ** 15) -> Iterator[bytes]:
+def xml_nested_mutation(xml_content: bytes, max_depth: int = 1024) -> Iterator[bytes]:
     try:
         root = xml.fromstring(xml_content)
     except xml.ParseError:
         return
 
-    nested_xml = "%n" * 2 ** 10
-
     for idx in range(max_depth):
-        nested_xml = f"<{idx}>{nested_xml}</{idx}>"
-
-        if idx % 100000 == 0:
-            yield nested_xml.encode()
+        nested_xml = f"<{idx}>{idx}</{idx}>"
+        yield nested_xml.encode()
 
 def xml_breadth_mutation(xml_content: bytes) -> Iterator[bytes]:
     try:

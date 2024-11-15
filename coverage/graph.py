@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from graph_tool.all import Graph
 from graph_tool.libgraph_tool_core import Vertex
 from binary import Binary
@@ -28,6 +28,16 @@ class ControlFlowGraph:
 
     # TODO: Come up with a better name for this
     def add_edge_if_exists(self, vertex: Vertex, block: Dict, key: str) -> None:
+        """Given a basic block, 
+
+        - add an edge to the specified key (jump/fail) if the vertex exist, or
+        - add it to `self.pending_edges()` otherwise.
+
+        Args:
+            vertex: The vertex representing the block.
+            block: The dictionary containing the attributes of the block.
+            key: The key of the dictionary containing the target block.
+        """
         if key in block and block[key] is not None:
             if block[key] in self.addr_to_vertex:
                 self.graph.add_edge(vertex, self.addr_to_vertex[block[key]])
@@ -35,6 +45,13 @@ class ControlFlowGraph:
                 self.pending_edges.append((vertex, block[key]))
 
     def add_function(self, addr: int, binary: Binary) -> None:
+        """Add the basic blocks of a function to the graph.
+        This will recursively call itself on any function called by the current one.
+
+        Args:
+            addr: The address of the target function
+            binary: The binary which the function belongs to.
+        """
         blocks = binary.get_blocks(addr)
         
         # Bit wacky but this should be faster than doing
@@ -70,3 +87,11 @@ class ControlFlowGraph:
                 )
         # TODO: Find function calls made by the function at `addr` and link it to the graph
         # TODO: Recursively dissassemble each function that the current function calls to
+
+    def find_dead_ends(self) ->  List[Vertex]:
+        """Find vetices with no outgoing edges
+
+        Returns:
+            A list of vertices with no outgoing edges
+        """
+        return [v for v in self.graph.vertices() if v.out_degree == 0]

@@ -44,7 +44,4 @@ for vertex in cfg.graph.get_vertices():
     print(f"Vertex {vertex} has value {hex( cfg.addr_map[vertex] )} and points to {cfg.graph.get_all_neighbors(vertex)}")
 
 print(f"There are { len(blocks) } blocks")
-
-breakpoints = binary.get_blocks(addr)
-breakpoints = map(lambda x: x['addr'], breakpoints)
-binary.run_with_log(breakpoints)
+print(f"The dead end edges are {cfg.find_dead_ends()}")

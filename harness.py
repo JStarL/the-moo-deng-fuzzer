@@ -18,10 +18,11 @@ from logger import fuzzer_logger
 programs = [
     # './binaries/json1',
     # './binaries/json2',
-    './binaries/my_json'
+    # './binaries/my_json'
     # './binaries/csv1',
     # './binaries/csv2',
     # './binaries/jpg1',
+    './binaries/my_jpeg'
     # './binaries/plaintext1',
     # './binaries/plaintext2',
     # './binaries/plaintext3',
@@ -32,10 +33,11 @@ programs = [
 inputs = [
     # './example_inputs/json1.txt',
     # './example_inputs/json2.txt',
-    './example_inputs/my_json.txt'
+    # './example_inputs/my_json.txt'
     # './example_inputs/csv1.txt',
     # './example_inputs/csv2.txt'
     # './example_inputs/jpg1.txt',
+    './example_inputs/my_jpeg.txt',
     # './example_inputs/plaintext1.txt',
     # './example_inputs/plaintext2.txt',
     # './example_inputs/plaintext3.txt',
@@ -71,7 +73,7 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
 
     exit_codes = {
         -11: 'segfault',
-        -6: 'abort',
+        # -6: 'abort',
         -5: 'sigtrap',
         -3: 'abort',
         134: 'abort'

@@ -184,6 +184,12 @@ With this graph, we can find 'dead ends', *i.e.* vertices without any outward ed
 
 This is somewhat more challenging, especially when taking the execution time into account. Our planned approach was to attach instrumentation into the running process, either directly with `ptrace()` or by leveraging GDB or radare2. We could then insert a breakpoint at the start of every building block that triggers a logging mechanism to record which blocks were visited during execution. This, however, introduces the overhead incurred by these breakpoints, as it would slow down execution by nature.
 
+## Some miscellaneous issues
+
+Dependencies were a challenge for this. `graph_tool`, which requires the use of Conda instead of virtualenv, which took a while to figure out. Activating these virtual environments inside the Docker container were also challenging to figure out.
+
+There also exists a library called `graph_tool` (without an 's'), which caused some confusion.
+
 # Bugs that can be found using moo-deng fuzzer
 
 * buffer overflow

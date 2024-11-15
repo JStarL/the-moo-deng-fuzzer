@@ -9,7 +9,16 @@ z5408331 - Halliya Hyeryeon UM
 
 # Fuzzer
 
-The fuzzer designed so far is an inital attempt at creating an appropriate, extensible infrastructure which can be used to create a full fledge black box testing system. It is elementary, in the sense that there are a few mutations elaborated on under the *Mutations* section below, and it only caters to JSON and CSV files, as per the requirements of the Mid-point checkin.
+The fuzzer that we have developed is a black-box fuzzer which uses a variety of strategies to test binaries for vulnerabilities. It operates on the following formats:
+
+* plaintext
+* json
+* csv
+* xml
+* jpg
+
+
+
 
 # The infrastructure
 
@@ -17,10 +26,62 @@ The main code starts in `harness.py`, which calls a `run()` function whose purpo
 
 * Firstly it determines the file type, according to which it executes appropriate commands like reading in a file and setting up appropriate data structures. One data structure we use is a container to represent the types of each cell of each input, for example the type of each value in the JSON object. This type could be an `INT` or a `STRING`.
 
-* The core of the program are a series of python generator functions which act as fuzzer input generators. The `run()` function creates a json fuzz processor and a csv fuzz processor for JSON and CSV inputs respectively, we perform fuzzing operations.
-   * The json fuzz processor does a round robin of fuzzing each field of the json object using a variety of mutations described below under the *mutations* section.
-   * The csv fuzz processor first uses repeated keyword techniques for fuzzing before using the same field fuzzing techniques in a round robin format to ensure even fuzzing distribution.
-   * monitoring for crashes, detecting anomalies in the binary's execution (e.g., non-zero exit code, memory violations, etc.).
+* For JPG we simply work with the bytes of the file after reading and opening the file as an image object
+
+* The program uses a unified pipeline for all file types which works as follows:
+
+    * Firstly, we create a data structure which holds all the data types of constituent parts of the original data structure, so that we know how to fuzz the individual fields and what produces semi-valid input
+
+    * Then we create a central fuzz processor depending on the file type of the input
+        
+        * this fuzz processor iterates through the constituent generators in a round robin format, giving equal weightage to a variety of types of attacks without giving too much weightage to a single type of attack
+    
+    * Then the program enters a while True loop where it iterates through each element of the central fuzzer
+    
+    * The program tries to convert the fuzzer output to a format suitable for input into the corresponding binary
+
+    * The program determines the input type of the binary input
+
+    * Then the program is run with this input and is monitored for segfaults and crashes
+        * We have implemented a simple timeout mechanism where if a program hangs for more than 1 second, we terminate the program
+    
+    * If the time to look for a valid crash for a specific binary exceeds the time limit or the central fuzzer generator runs out of inputs, we move on to the next program
+
+* We describe the fuzzing processor's architecture in more detail in the next section
+
+* We describe the mutations in more detail in the *mutations* section
+
+# Fuzzing generators architecture
+
+![logger_diagram](./field_fuzzer.png)
+![logger_diagram](./jpeg_fuzz_processing.png)
+![logger_diagram](./xml_fuzz_processing.png)
+
+Based on the above diagrams, the central fuzz processing generators call constituent generators at various levels. The JSON, CSV and plaintext fuzzers call the field fuzzer, which then calls integer and string fuzzing generators.
+* Integer mutations include special known ints, in decimal, hex and binary form
+* String mutations include buffer overflows and format string payloads
+* String mutations also include special techniques like injection payloads from SQL Injection
+
+The XML fuzzer calls several XML mutation generators like:
+* modifying tags
+* modifying inner text
+* modifying attributes
+* Modifying depth of nested structures (exceeding max depth)
+* Modifying breadth of child nodes (exceeding max breadth to test memory limits)
+* The attribute generator calls sub generators as in the diagram above
+
+The JPG fuzzer defines various areas of importance in the fuzzer, called markers like the
+* Start of image
+* quantization table
+* start of frame
+* etc...
+
+The JPG fuzzer main strategy is to:
+* randomly flip bytes *within* regions specified by the markers
+* introduce buffer overflows *within* regions specified by the markers
+* repeat marker bytes in place
+* repear marker bytes at the end
+* delete marker bytes
 
 # Mutations
 
@@ -146,3 +207,7 @@ format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s
 **Harness**
 
 **Memory Capture????**
+
+**In memory resetting**
+
+**Implementation of PDF + ELF**

@@ -6,11 +6,11 @@ def logger_setup(log_type = None):
 
 
     if log_type == 'DEBUG':
-        logging.basicConfig(format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s ',
+        logging.basicConfig(format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s \n',
                             datefmt='%d-%m-%y %I:%M:%S %p',
                             level=level)
     else:
-        logging.basicConfig(format='(%(asctime)s) %(levelname)s:%(message)s ',
+        logging.basicConfig(format='(%(asctime)s) %(levelname)s:%(message)s \n',
                         datefmt='%d-%m-%y %I:%M:%S %p',
                         level=level)
 

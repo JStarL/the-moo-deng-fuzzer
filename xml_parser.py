@@ -1,51 +1,68 @@
-import io
-import xml
-import xml.etree.ElementTree as xmlTree
+from typing import Iterator
+import xml.etree.ElementTree as xml
+import copy
+from utils import determine_input_type
+from mutations.xml_mutation import xml_text_mutation, xml_attr_mutation, xml_tag_mutation, xml_nested_mutation, xml_breadth_mutation
+import sys
+from logger import fuzzer_logger
 
-MAX_DEPTH_NEST = 150
-'''  example xml file
-
-<html>
-    <head>
-        <link href="http://somewebsite.com" />
-    </head>
-    <body>
-        <h1>I'm not a web developer.</h1>
-    </body>
-
-    <div id="#lol">
-        <a href="http://google.com">Here is some link...</a>
-    </div>
+def read_xml_file(filepath: str):
+    try:
+        tree = xml.parse(filepath)
+        return tree
+    except:
+        fuzzer_logger.critical(f"Couldn't parse xml file at {filepath}")
+        return None
 
 
-    <tail>
-        <a href="http://bing.com">Footer link</a>
-    </tail>
-</html>
-EOF '''
+def process_xml(tree: xml.ElementTree):
+    file_type_tree = copy.deepcopy(tree)
+    file_type_root = file_type_tree.getroot()
+    file_types = list(file_type_root.iter())
 
-def xml_bof(filePath):
-    tree = xmlTree.parse(filePath)
-    root_node = tree.getroot()
-    child_node = xmlTree.SubElement(root, 'div')
+    root = tree.getroot()
 
-    def tag_deep_nest:
-    # tag is deep nesting
+    # Assume that xml tags are always strings for simplicity
+    # Only determines file types for tag contents
+    for index, element in enumerate(root.iter()):
+        file_types[index].text = determine_input_type(element.text)
 
-    def content_overflow:
-    # "http://{"A" * 0x10000}.com"
+    return file_type_tree
 
-    # not sure with these
-    def tag_int_overflow:
-    def tag_int_underflow:
 
-    def long_tag:
-    # child_node name overflow
+def xml_fuzz_processor(tree: xml.ElementTree, file_type_tree: xml.ElementTree) -> Iterator[xml.ElementTree]:
+    # Define mutation functions and their descriptions
+    mutation_functions = [
+        xml_nested_mutation,
+        xml_text_mutation,
+        xml_attr_mutation,
+        xml_tag_mutation,
+        xml_breadth_mutation
 
-def xml_fstring(filePath):
-    def content_fstring:
-    # "http://{%s *0x10}.com"
-    def tag_fstring:
-    # child_node name %s
+    ]
 
+    mutation_generators = [func(xml.tostring(tree.getroot())) for func in mutation_functions]
+
+    i = 0
+    while len(mutation_generators) > 0:
+        if i >= len(mutation_generators):
+            i = 0
+
+        try:
+            mutated_xml_bytes = next(mutation_generators[i])
+            yield mutated_xml_bytes
+        except StopIteration:
+            fuzzer_logger.debug(f'finished {mutation_generators[i]} mutations')
+            mutation_generators.pop(i)
+            continue
+
+        i += 1
+    # while mutation_generators:
+    #     for i, generator in enumerate(mutation_generators):
+    #         try:
+    #             mutated_xml_bytes = next(generator)
+    #             yield mutated_xml_bytes
+    #         except StopIteration:
+    #             print('generator = ', generator)
+    #             mutation_generators.pop(i)
 

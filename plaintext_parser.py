@@ -40,7 +40,11 @@ def txt_fuzz_processor(lines: List[bytes], line_type: List[FieldType]) -> Iterat
         
         lines_mod = copy.deepcopy(lines)
         try:
-            lines_mod[i] = next(fuzzers[i])
+            
+            fuzzer_output = next(fuzzers[i])
+            if isinstance(fuzzer_output, str):
+                fuzzer_output = fuzzer_output.encode('utf-8')
+            lines_mod[i] = fuzzer_output
             yield lines_mod
         except StopIteration:
             complete[i] = True

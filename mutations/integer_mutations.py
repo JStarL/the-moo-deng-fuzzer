@@ -3,7 +3,8 @@ import random
 from .special_values import SPECIAL_INTS
 from .buffer_overflow import buffer_overflow_mutation
 
-def nearby_ints(number: int, extent: int) -> Iterator[int]:
+
+def nearby_ints(number: int, extent: int = 0) -> Iterator[int]:
     """Generates integers near the given number within the specified extent.
 
     Args:
@@ -14,11 +15,14 @@ def nearby_ints(number: int, extent: int) -> Iterator[int]:
         Iterator[int]: Integers near the base number.
     """
     for i in range(0, extent):
-        yield number + i
-        yield number - i
+        if extent == 0:
+            yield number
+        else:
+            yield number + i
+            yield number - i
 
 
-def nearby_special_ints(extent: int) -> Iterator[int]:
+def nearby_special_ints(extent: int = 0) -> Iterator[int]:
     """Generates nearby integers for special values in the list SPECIAL_INTS.
 
     Args:
@@ -29,6 +33,23 @@ def nearby_special_ints(extent: int) -> Iterator[int]:
     """
     for i in SPECIAL_INTS:
         yield from nearby_ints(i, extent)
+
+
+def nearby_special_intbytes(sample_inputs: Optional[bytes] = None) -> Iterator[bytes]:
+    """Generates nearby integers for special values in the list SPECIAL_INTS, converting them to strings and then to bytes.
+
+    Args:
+        sample_inputs (bytes): The input data.
+
+    Yields:
+        Iterator[bytes]: Nearby integers as bytes.
+    """
+    for i in SPECIAL_INTS:
+        try:
+            # Convert integer to string, then encode as bytes
+            yield str(i).encode('utf-8')
+        except OverflowError:
+            continue
 
 
 def nearby_special_ints_add_buf(extent: int) -> Iterator[bytes]:
@@ -64,7 +85,7 @@ def random_ints(count: int, scope: int, signed: bool = False) -> Iterator[int]:
             yield random.randint(0, scope)
 
 
-def to_str(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
+def to_str(inputs: Optional[bytes] = None, ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
     """Converts integers to their byte-string representations.
 
     Args:
@@ -93,7 +114,7 @@ def to_str_add_buf(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
             yield s + buf
 
 
-def to_hex(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
+def to_hex(inputs: bytes, ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
     """Converts integers to their hexadecimal byte-string representations.
 
     Args:
@@ -106,6 +127,7 @@ def to_hex(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:
         ints_input = SPECIAL_INTS
     for i in ints_input:
         yield f"{i:x}".encode()
+        yield hex(i).encode()
 
 
 def to_hex_add_buf(ints_input: Optional[List[int]] = None) -> Iterator[bytes]:

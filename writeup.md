@@ -7,18 +7,6 @@ z5437039 - Antheo Raviel Santosa
 
 z5408331 - Halliya Hyeryeon UM
 
-# How to build and run the Docker container
-
-* `docker build -t comp6447-fuzzer .`
-* `docker run -it comp6447-fuzzer`
-
-## Docker command lines to use..
-```
-docker build -t $IMAGE_NAME . # build the docker image
-docker run -it $IMAGE_NAME $CONTAINER_NAME # instantiates a new container from the image and run the default command
-docker exec -it $CONTAINER_NAME # use an existing container and run it 
-```
-
 # Fuzzer
 
 The fuzzer designed so far is an inital attempt at creating an appropriate, extensible infrastructure which can be used to create a full fledge black box testing system. It is elementary, in the sense that there are a few mutations elaborated on under the *Mutations* section below, and it only caters to JSON and CSV files, as per the requirements of the Mid-point checkin.
@@ -34,58 +22,127 @@ The main code starts in `harness.py`, which calls a `run()` function whose purpo
    * The csv fuzz processor first uses repeated keyword techniques for fuzzing before using the same field fuzzing techniques in a round robin format to ensure even fuzzing distribution.
    * monitoring for crashes, detecting anomalies in the binary's execution (e.g., non-zero exit code, memory violations, etc.).
 
-
 # Mutations
 
-In this section, we describe the mutations that we have used. These mutations have been linked to the `field_fuzzer()` function, or have been directly called by the caller, like the `csv_parser.py` calling the repeated keywords function.
+In this section, we describe the mutations used in our fuzzing process. These mutations are either called by the `field_fuzzer()` function or directly by modules such as `csv_parser.py`, which calls the repeated keywords function.
+
+## Overview
+
+This fuzzer employs diverse mutation functions to test for vulnerabilities in integer handling, buffer management, and structured data parsing. Each mutation type targets specific weaknesses, such as boundary conditions, buffer overflow, and format specifier handling. The `load_and_mutate_xml()` function applies these mutations to XML data and tests them on a target C program.
 
 ## Nearby Integers and Special Integer Mutations
 
 * `nearby_ints(number: int, extent: int)`:
-    * Generates integers near the provided number, within a range defined by extent. Useful for testing boundary conditions near specific integer values.
+    * Generates integers near the provided number, within a specified range. This is useful for testing boundary conditions close to specific integer values.
 
 * `nearby_special_ints(extent: int)`:
-    * Generates integers close to special values listed in SPECIAL_INTS. These special integers include boundary values like 0xFFFFFFFF, powers of 2, and other notable numbers.
+    * Generates integers near special values defined in `SPECIAL_INTS`. These values include common boundary integers like 0xFFFFFFFF, powers of 2, and other notable numbers.
 
 * `random_ints(count: int, scope: int, signed: bool)`:
-    * Generates a specified number of random integers. If signed is true, both positive and negative values are generated within the defined scope.
+    * Produces a defined number of random integers. If `signed` is `True`, both positive and negative values within the scope are generated.
 
 ## Integer to X Conversions
 
-These functions convert integers to byte-string formats such as regular strings, hexadecimal, or endian byte representations. Some functions also append buffer overflow mutations to these strings.
+These functions convert integers into byte-string formats such as regular strings, hexadecimal, or endian representations. Some functions also include buffer overflow mutations.
 
 * `to_str(ints_input: Optional[List[int]])`:
-    * Converts a list of integers into their string representation in bytes. If no input is provided, it defaults to using SPECIAL_INTS.
+    * Converts a list of integers into their byte-string representation. If no input is provided, it defaults to using `SPECIAL_INTS`.
 
 * `to_hex(ints_input: Optional[List[int]])`:
-    * Converts integers to their hexadecimal byte-string representation, which is useful for testing scenarios that involve hexadecimal input formats.
+    * Converts integers to a hexadecimal byte-string format, ideal for testing hexadecimal data handling.
 
 * `to_endian(ints_input: Optional[List[int]], order: str)`:
-    * Converts integers to their byte representations, either in little-endian or big-endian format. This can be used to test how systems handle byte ordering differences.
+    * Converts integers into byte representations, supporting both little-endian and big-endian formats. This function tests how systems manage different byte orders.
 
 ## Buffer Overflow Mutations
 
-This group of functions focuses on generating buffer overflows by appending large sequences of characters to existing strings or integer-converted data.
+These functions generate buffer overflows by appending large character sequences to strings or integer-converted data, helping to identify vulnerabilities related to buffer size limitations.
 
 * `buffer_overflow_mutation()`:
-    * Generates sequences of 'A' characters with exponentially increasing lengths to test for buffer overflow vulnerabilities. The sizes of these sequences range from 128 bytes to 65536 bytes.
+    * Creates sequences of 'A' characters in exponentially increasing lengths (128 bytes to 65536 bytes) to test for buffer overflow vulnerabilities.
 
 * `nearby_special_ints_add_buf(extent: int)`:
-    * Combines nearby integers with buffer overflow mutations. It converts the integers to bytes and appends buffer overflow strings for testing.
+    * Combines nearby integer values with buffer overflow mutations. Converts integers to bytes and appends buffer overflow strings for testing.
 
 * `to_str_add_buf(ints_input: Optional[List[int]])`:
-    * Converts integers to strings and appends buffer overflow mutations, allowing for testing string-handling routines with potential buffer overflows.
+    * Converts integers to strings and appends buffer overflow sequences, testing how string-handling routines cope with excessive input.
 
 * `to_hex_add_buf(ints_input: Optional[List[int]])`:
-    * Converts integers to hexadecimal format and appends buffer overflow sequences, used for testing hexadecimal input vulnerabilities.
+    * Converts integers to hexadecimal format and appends buffer overflow strings, useful for hexadecimal input vulnerabilities.
 
 ## Keyword Repetition Mutations
 
-These functions focus on mutating input by repeating certain portions of the input, either headers or specific keywords, to test how the system handles repeated patterns.
+These functions mutate input by repeating certain parts of it (e.g., headers or specific keywords) to examine how the system handles repeated patterns.
 
 * `repeat_header(sample_input: bytes, keywords: List[bytes])`:
-    * Repeats the header section of the CSV input multiple times. This is useful for testing how repeated data is handled in structured file formats.
+    * Repeats the header section of a CSV input multiple times, testing the handling of repeated data in structured file formats.
 
 * `repeat_last_keyword(input: List[str], keywords: List[str])`:
-    * Repeats the last keyword from a list of strings multiple times. This can test how systems handle repeated fields or values within structured data.
+    * Repeats the last keyword from a list of strings multiple times, testing how repeated fields or values affect structured data handling.
 
+## XML-Specific Mutations
+
+For XML files, these mutations apply changes directly to XML structure and attributes to test how programs manage malformed or unusual XML data.
+
+* `xml_tag_mutation(xml_content: bytes)`:
+    * Mutates XML tag names to test how the system handles unusual or malformed tags.
+
+* `xml_attr_mutation(xml_content: bytes)`:
+    * Alters XML attributes, targeting vulnerabilities in attribute parsing and handling.
+
+* `xml_text_mutation(xml_content: bytes)`:
+    * Modifies text content within XML tags to examine how text alterations affect XML parsing.
+
+* `xml_nested_mutation(xml_content: bytes)`:
+    * Duplicates nested XML structures to create deeply nested patterns, testing the system’s resilience to complex nesting.
+
+## Format Specifier and Boundary Value Mutations
+
+These mutations inject common format specifiers, long format strings, and boundary values into data to simulate format string vulnerabilities and boundary issues.
+
+* `data_injection(data: bytes)`:
+    * Injects format specifiers for targeting SQL Injection, XSS, command injection, path traversal, and XXE vulnerabilities. These payloads test how different formats and encodings, including Unicode, are handled.
+
+* `boundary_value_injection(data: bytes)`:
+    * Injects boundary values like `\x00`, `\xFF`, and `\x7F` into data to test how programs handle such values.
+
+* `format_injection(data: bytes)`:
+    * Inserts standard format specifiers (e.g., `%s`, `%d`, `%x`) into byte sequences to test for format string vulnerabilities.
+
+* `long_format_specifier(data: bytes)`:
+    * Injects extended format specifiers, such as `%1000x`, into byte sequences to check for handling of unusually large format specifiers.
+
+
+# Log
+### Logger diagram
+![logger_diagram](./logger%20diagram.png)
+`logger.py` : Create and set up the log file with configuration depending on sys.argv (log file flag type)
+
+`fuzzer.log` : stored log file for the fuzzer
+
+`harness.py` : creates log and stores it in fuzzer.log file
+
+### Details of Log File format
+```
+format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s
+```
+* **%(asctime)s**: time when log is created
+* **%(levelname)s**: level of log _(NOTSET=0, DEBUG=10, INFO=20, WARN=30, ERROR=40, and CRITICAL=50)_
+* **%(pathname)s**: path of the file where the log is created
+* **%(lineno)d**: line number where the log is created
+* **%(message)s**: detailed log message
+
+# Bugs that can be found using moo-deng fuzzer
+* buffer overflow
+* format string
+* ...
+
+# Possible improvements suggestion
+**Log**
+* Adding vulnerability type and file extension type to log message was our plan, but couldn't finish it due to time constraint.
+
+**Mutation**
+
+**Harness**
+
+**Memory Capture????**

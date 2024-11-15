@@ -7,7 +7,7 @@
     </body>
 
     <div id="#lol">
-        <a href="%nhttp://google.com">Here is some link...</a>
+        <a href="%hn">Here is some link...</a>
     </div>
 
 

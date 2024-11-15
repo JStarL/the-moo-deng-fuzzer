@@ -95,11 +95,11 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
         statistics["fuzzer_attempt"] += 1
         statistics["fuzzer_success"] += 1
         statistics["fuzzer_success_rate"] = statistics["fuzzer_success"] / statistics["fuzzer_attempt"] * 100
-        fuzzer_logger.info('Fuzzer success rate(%d out of %d attempt): %d \%',statistics["fuzzer_success"], statistics["fuzzer_attempt"], statistics["fuzzer_success_rate"] )
+        fuzzer_logger.info(f'Fuzzer success rate({statistics["fuzzer_success"]} out of {statistics["fuzzer_attempt"]} attempt): {statistics["fuzzer_success_rate"]}')
         return True
 
     statistics["fuzzer_attempt"] += 1
-    fuzzer_logger.debug(f'Normal Return Code: {result.returncode}')
+    # fuzzer_logger.debug(f'Normal Return Code: {result.returncode}')
 
     return False
 

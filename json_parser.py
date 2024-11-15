@@ -54,10 +54,9 @@ def json_fuzz_processor(json_input: Dict, json_type: Dict) -> Generator[Dict, No
 
     i = 0
     while len(generators) > 0:
-        
         if i >= len(generators):
             i = 0
-        
+
         try:
             json_input[keys_list[i]] = next(generators[i])
             # print(f'{keys_list[i]}: {json_input[keys_list[i]]}')
@@ -65,7 +64,6 @@ def json_fuzz_processor(json_input: Dict, json_type: Dict) -> Generator[Dict, No
                 try:
                     json_input[keys_list[i]] = json_input[keys_list[i]].decode('utf-8')
                 except:
-                    print("Can't convert bytes object to str")
                     json_input[keys_list[i]] = "None"
             yield json_input
         except StopIteration:

@@ -20,14 +20,13 @@ MARKERS = {
 }
 
 def mutators(data):
-    
     mutators = [random_partial_flip(data), inject_special_values(data), buffer_overflow_mutation()]
-    
+
     i = 0
     while len(mutators) > 0:
         if i >= len(mutators):
             i = 0
-        
+
         try:
             yield next(mutators[i])
         except StopIteration:
@@ -81,8 +80,6 @@ def mutate_region(img_bytes: bytes, start_marker: bytes, end_marker: bytes) -> I
         while True:
             mutated_region = next(byte_flipper)
             yield before_region + start_marker + mutated_region + end_marker + after_region
-    except StopIteration:
-        fuzzer_logger.debug(f'Tried all byte flip mutations for jpeg')
 
 def edit_markers(img_bytes: bytes) -> Iterator[bytes]:
 
@@ -95,7 +92,7 @@ def edit_markers(img_bytes: bytes) -> Iterator[bytes]:
     while len(mutators) > 0:
         if i >= len(mutators):
             i = 0
-        
+
         try:
             mod_img_bytes = next(mutators[i])
             yield mod_img_bytes
@@ -198,11 +195,10 @@ def process_jpeg(img):
 
     for key in jpeg_type:
         jpeg_type[key] = determine_input_type(jpeg_type[key])
-    
+
     return jpeg_type
 
 def jpeg_fuzz_processor_old(img, img_exif_types):
-    
     jpeg_input = get_jpeg_meta(img)
 
     keys_list = list(img_exif_types.keys())
@@ -217,7 +213,6 @@ def jpeg_fuzz_processor_old(img, img_exif_types):
         # print("Len(gens):", len(generators))
         if i >= len(generators):
             i = 0
-        
         try:
             jpeg_input[keys_list[i]] = next(generators[i])
             print(f'{keys_list[i]}: {jpeg_input[keys_list[i]]}')

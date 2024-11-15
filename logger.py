@@ -1,16 +1,15 @@
 import logging
 import sys
 
-def logger_setup(log_type = None): 
+def logger_setup(log_type = None):
     level = logging.DEBUG
 
-
     if log_type == 'DEBUG':
-        logging.basicConfig(format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s \n',
+        logging.basicConfig(format='(%(asctime)s)  %(filename)s:%(levelname)s:%(pathname)s-%(lineno)d:%(message)s \n',
                             datefmt='%d-%m-%y %I:%M:%S %p',
                             level=level)
     else:
-        logging.basicConfig(format='(%(asctime)s) %(levelname)s:%(message)s \n',
+        logging.basicConfig(format='(%(asctime)s)  %(filename)s:%(levelname)s:%(message)s \n',
                         datefmt='%d-%m-%y %I:%M:%S %p',
                         level=level)
 

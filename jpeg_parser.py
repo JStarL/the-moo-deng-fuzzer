@@ -6,6 +6,7 @@ from utils import FieldType, determine_input_type, field_fuzzer
 from typing import Iterator
 from mutations.bit_flip import byte_flip, random_partial_flip, inject_special_values
 from mutations.keywords import repeat_keyword_inplace, delete_keyword, repeat_keyword_end_bytes
+from mutations.buffer_overflow import buffer_overflow_mutation
 from logger import fuzzer_logger
 
 MARKERS = {
@@ -18,9 +19,9 @@ MARKERS = {
     "Image End": 0xFFD9.to_bytes(2, byteorder="big")
 }
 
-def byte_flip_mutation(data):
+def mutators(data):
     
-    mutators = [random_partial_flip(data), inject_special_values(data)]
+    mutators = [random_partial_flip(data), inject_special_values(data), buffer_overflow_mutation()]
     
     i = 0
     while len(mutators) > 0:
@@ -74,7 +75,7 @@ def mutate_region(img_bytes: bytes, start_marker: bytes, end_marker: bytes) -> I
 
     after_region = img_bytes.split(end_marker)[1]
 
-    byte_flipper = byte_flip_mutation(region)
+    byte_flipper = mutators(region)
 
     try:
         while True:
@@ -125,7 +126,7 @@ def jpeg_fuzz_processor(img, img_exif_types):
             mod_img_bin = next(mutators[i])
             yield mod_img_bin
         except StopIteration:
-            fuzzer_logger.debug(f'Finished index {i}')
+            # fuzzer_logger.debug(f'Finished index {i}')
             mutators.pop(i)
             continue
 

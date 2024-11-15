@@ -64,12 +64,11 @@ statistics = {
     "fuzzer_success_rate": 0
 }
 
-def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=0.8) -> bool:
+def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=1) -> bool:
     '''
     True -> Exploit discovered
     False otherwise
     '''
-   
     try:
         if mode == 'TEXT':
             result = subprocess.run(prog_path, timeout=timeout, input=input, text=True, universal_newlines=True, stdout=subprocess.PIPE,
@@ -82,7 +81,7 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
 
     exit_codes = {
         -11: 'segfault',
-        # -6: 'abort',
+        -6: 'abort',
         -5: 'sigtrap',
         -3: 'abort',
         134: 'abort'
@@ -301,6 +300,7 @@ def run():
                     binary_input = json.dumps(mod_input).encode()
                 elif file_type == FileType.CSV:
                     binary_input = write_csv_string(mod_input)
+                    print('binay input', binary_input[:100])
                 elif file_type == FileType.JPEG:
                     binary_input = mod_input
                 elif file_type == FileType.TXT:

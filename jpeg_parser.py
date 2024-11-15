@@ -80,6 +80,8 @@ def mutate_region(img_bytes: bytes, start_marker: bytes, end_marker: bytes) -> I
         while True:
             mutated_region = next(byte_flipper)
             yield before_region + start_marker + mutated_region + end_marker + after_region
+    except StopIteration:
+        pass
 
 def edit_markers(img_bytes: bytes) -> Iterator[bytes]:
 

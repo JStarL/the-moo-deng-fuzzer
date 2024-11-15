@@ -8,6 +8,7 @@ from mutations.format_str import data_injection, boundary_value_injection, forma
 from mutations.integer_mutations import to_str, to_hex, nearby_special_intbytes
 from mutations.kv_mutations import del_keys, add_keys, update_keys, update_values
 import base64
+from logger import fuzzer_logger
 
 Mutators = [
     format_injection,
@@ -93,14 +94,16 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
     except xml.ParseError:
         return
     for el in root.iter():
-        print(f'\ntag: {el.tag}')
+        fuzzer_logger.debug(f'xml_text_mutation: tag = {el.tag}')
 
         # Use the element's tag if available, otherwise use the default payload
         text_to_mutate = el.text.encode() if el.text is not None else b''
 
         for mutator in Mutators:
             for mutation in mutator(text_to_mutate):
-                print(f'mutation: {mutation}')
+                if isinstance(mutation, str) or isinstance(mutation, bytes):
+                    fuzzer_logger.debug(f'mutation: {mutation[:20]}')
+
                 try:
                     # Attempt to decode as UTF-8
                     el.text = mutation.decode('utf-8')

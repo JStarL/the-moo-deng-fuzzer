@@ -7,7 +7,7 @@
     </body>
 
     <div id="#lol">
-        <a href="%hn">Here is some link...</a>
+        <a href="%hhn">Here is some link...</a>
     </div>
 
 

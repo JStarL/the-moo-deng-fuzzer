@@ -3,6 +3,7 @@ import copy
 from typing import List, Iterator
 from utils import FieldType, determine_input_type, field_fuzzer
 from mutations.keywords import repeat_last_keyword
+import sys
 
 def read_csv_file(file_path: str) -> List[List[str]]:
     data = []
@@ -38,8 +39,6 @@ def csv_fuzz_processor(csv_input: List[List[str]], csv_type: List[List[FieldType
             yield csv_input_curr
 
     csv_input_curr = copy.deepcopy(csv_input)
-
-    print('Testing Field Fuzzer')
 
     i, j = 0, 0
     while i < len(csv_input_curr):

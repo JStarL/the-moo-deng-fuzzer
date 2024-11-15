@@ -2,7 +2,7 @@ from typing import Iterator
 import xml.etree.ElementTree as xml
 import copy
 from utils import determine_input_type
-from mutations.xml_mutation import xml_text_mutation, xml_attr_mutation, xml_tag_mutation, xml_nested_mutation
+from mutations.xml_mutation import xml_text_mutation, xml_attr_mutation, xml_tag_mutation, xml_nested_mutation, xml_breadth_mutation
 import sys
 from logger import fuzzer_logger
 
@@ -37,6 +37,7 @@ def xml_fuzz_processor(tree: xml.ElementTree, file_type_tree: xml.ElementTree) -
         xml_text_mutation,
         xml_attr_mutation,
         xml_tag_mutation,
+        xml_breadth_mutation
 
     ]
 

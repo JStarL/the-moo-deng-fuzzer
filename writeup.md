@@ -80,9 +80,11 @@ The XML fuzzer calls several XML mutation generators like:
 The JPG fuzzer defines various areas of importance in the fuzzer, called markers like the
 
 * Start of image
+* application header
 * quantization table
 * start of frame
-* etc...
+* huffman table
+* the actual image content
 
 The JPG fuzzer main strategy is to:
 

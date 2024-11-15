@@ -52,7 +52,7 @@ def xml_nested_mutation(xml_content: bytes, max_depth: int = 1024) -> Iterator[b
 
     for idx in range(max_depth):
         nested_xml = f"<{idx}>{idx}</{idx}>"
-        yield nested_xml.encode()
+    yield nested_xml.encode()
 
 def xml_breadth_mutation(xml_content: bytes) -> Iterator[bytes]:
     try:
@@ -63,7 +63,7 @@ def xml_breadth_mutation(xml_content: bytes) -> Iterator[bytes]:
     for i in range(len(root)):
         for _ in range(512):
             new_root.append(root[i])
-        yield xml.tostring(new_root)
+    yield xml.tostring(new_root)
 
 
 def xml_attr_mutation(xml_content: bytes) -> Iterator[bytes]:

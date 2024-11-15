@@ -8,6 +8,7 @@ z5437039 - Antheo Raviel Santosa
 
 z5408331 - Halliya Hyeryeon UM
 
+
 # Fuzzer
 
 The fuzzer that we have developed is a black-box fuzzer which uses a variety of strategies to test binaries for vulnerabilities. It operates on the following formats:
@@ -17,6 +18,10 @@ The fuzzer that we have developed is a black-box fuzzer which uses a variety of 
 * csv
 * xml
 * jpg
+
+### Important Notice Regarding Program Execution
+
+> Please note: On certain machines, the program may exit prematurely during the first run (we are still investigating this issue). If you encounter this, please try running the program a second time.
 
 # The infrastructure
 

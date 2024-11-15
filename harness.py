@@ -92,7 +92,7 @@ statistics_txt = {
     "txt_success_rate": 0
 }
 
-def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=1) -> bool:
+def run_program(prog_path: str, input: str | bytes, file_type: FileType, mode: str = 'TEXT', timeout=1) -> bool:
     '''
     True -> Exploit discovered
     False otherwise
@@ -384,7 +384,7 @@ def run():
                     bin_mode = 'BINARY'
 
                 # fuzzer_logger.debug(f'Running program {program}...')
-                exploit_found = run_program(programs[i], binary_input, mode=bin_mode)
+                exploit_found = run_program(programs[i], binary_input, file_type, mode=bin_mode)
                 if exploit_found:
                     write_bad_file(binary_input, programs[i], bin_mode)
                     print(f'Program {programs[i]}: EXPLOITED, time:{time.time()-start_time} going to next...')

@@ -9,10 +9,19 @@ from mutations.integer_mutations import to_str, to_hex, nearby_special_intbytes
 from mutations.kv_mutations import del_keys, add_keys, update_keys, update_values
 import base64
 
-Mutators = [format_injection, long_format_specifier, data_injection, boundary_value_injection, boundary_str_injection,
-            to_str, to_hex, ]
+Mutators = [
+    format_injection,
+    long_format_specifier,
+    data_injection,
+    boundary_value_injection,
+    boundary_str_injection,
+    to_str, to_hex,
+    buffer_overflow_mutation
+]
 
 KV_Mutators = [del_keys, update_keys, update_values, add_keys]
+
+
 def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
     try:
         root = xml.fromstring(xml_content)
@@ -23,7 +32,7 @@ def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
         # print(f'tag: {el.tag}')
 
         # Use the element's tag if available, otherwise use the default payload
-        tag_to_mutate = el.tag.encode() if el.tag is not None else ''
+        tag_to_mutate = el.tag.encode() if el.tag is not None else b''
 
         for mutator in Mutators:
             for mutation in mutator(tag_to_mutate):
@@ -35,24 +44,23 @@ def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
                     # Fallback to Base64 encoding if UTF-8 decoding fails
                     el.tag = base64.b64encode(mutation).decode('ascii')
 
+
                 # print(f'mutation: {mutation}')
                 yield xml.tostring(root)
 
 
-def xml_nested_mutation(xml_content: bytes, max_depth: int = 2**32) -> Iterator[bytes]:
+def xml_nested_mutation(xml_content: bytes, max_depth: int = 2 ** 32) -> Iterator[bytes]:
     try:
         root = xml.fromstring(xml_content)
     except xml.ParseError:
         return
 
-    nested_xml = "%n" * 2**10
+    nested_xml = "%n" * 2 ** 10
 
-    # 一次性生成最大深度嵌套
     for idx in range(1, max_depth + 1):
         nested_xml = f"<{idx}>{nested_xml}</{idx}>"
 
         if idx % 100000 == 0:
-            print(idx)
             yield nested_xml.encode()
 
 
@@ -78,7 +86,6 @@ def xml_attr_mutation(xml_content: bytes) -> Iterator[bytes]:
             el.attrib.update(original_attrib)
 
 
-
 # XML text mutation
 def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
     try:
@@ -86,14 +93,14 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
     except xml.ParseError:
         return
     for el in root.iter():
-        # print(f'text: {el.text}')
+        print(f'\ntag: {el.tag}')
 
         # Use the element's tag if available, otherwise use the default payload
-        tag_to_mutate = el.text.encode() if el.text is not None else b''
+        text_to_mutate = el.text.encode() if el.text is not None else b''
 
         for mutator in Mutators:
-            for mutation in mutator(tag_to_mutate):
-
+            for mutation in mutator(text_to_mutate):
+                print(f'mutation: {mutation}')
                 try:
                     # Attempt to decode as UTF-8
                     el.text = mutation.decode('utf-8')
@@ -137,17 +144,16 @@ def load_and_mutate_xml(prog_path, file_path):
         mutation_functions = [
             # ("tag", xml_tag_mutation),
             # ("attribute", xml_attr_mutation),
-            # ("text", xml_text_mutation),
-            ("nest", xml_nested_mutation),
+            ("text", xml_text_mutation),
+            # ("nest", xml_nested_mutation),
         ]
 
         # Run each type of mutation
-        i = 0
         for mutation_type, mutation_func in mutation_functions:
             for mutation_index, mutated_xml_data in enumerate(mutation_func(xml_content)):
 
                 result = run_c_program_with_pdf(prog_path, mutated_xml_data)
-
+                print(mutated_xml_data.decode())
                 exit_codes = {
                     -11: 'segfault',
                     -6: 'abort',
@@ -156,7 +162,7 @@ def load_and_mutate_xml(prog_path, file_path):
                     134: 'abort'
                 }
                 if result.returncode in exit_codes.keys():
-                    print(f'time: {time.time()-start}, Exploit Return Code: {result.returncode}')
+                    print(f'time: {time.time() - start}, Exploit Return Code: {result.returncode}\n\n')
                     break
     except FileNotFoundError:
         print(f"Error: File {file_path} not found.")
@@ -164,7 +170,14 @@ def load_and_mutate_xml(prog_path, file_path):
 
 if __name__ == "__main__":
     # Example usage
-    prog_path = './xml2'  # Path to the compiled C program
-    input_file = 'xml2.txt'  # Path to the input XML file
-    load_and_mutate_xml(prog_path, input_file)
+    # prog_path = './xml1'  # Path to the compiled C program
+    # input_file = 'xml1.txt'  # Path to the input XML file
+    # load_and_mutate_xml(prog_path, input_file)
+    #
+    # prog_path = './xml2'  # Path to the compiled C program
+    # input_file = 'xml2.txt'  # Path to the input XML file
+    # load_and_mutate_xml(prog_path, input_file)
 
+    prog_path = './xml3'  # Path to the compiled C program
+    input_file = 'xml0.txt'  # Path to the input XML file
+    load_and_mutate_xml(prog_path, input_file)

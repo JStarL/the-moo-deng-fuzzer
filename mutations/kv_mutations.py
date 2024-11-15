@@ -12,7 +12,7 @@ mutators = [data_injection,
             to_hex,
             nearby_special_intbytes,
             boundary_value_injection,
-            # buffer_overflow_mutation
+            buffer_overflow_mutation
             ]
 
 import base64

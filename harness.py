@@ -56,12 +56,40 @@ class FileType(Enum):
     TXT = 'txt'
     NULL = 'null'
 
-
 statistics = {
-     # Statistics of fuzzer - fuzzer statistics variables
     "fuzzer_attempt": 0,
     "fuzzer_success": 0,
     "fuzzer_success_rate": 0
+}
+
+statistics_json = {
+    "json_attempt": 0,
+    "json_success": 0,
+    "json_success_rate": 0
+}
+
+statistics_csv = {
+    "csv_attempt": 0,
+    "csv_success": 0,
+    "csv_success_rate": 0
+}
+
+statistics_jpeg = {
+    "jpeg_attempt": 0,
+    "jpeg_success": 0,
+    "jpeg_success_rate": 0
+}
+
+statistics_xml = {
+    "xml_attempt": 0,
+    "xml_success": 0,
+    "xml_success_rate": 0
+}
+
+statistics_txt = {
+    "txt_attempt": 0,
+    "txt_success": 0,
+    "txt_success_rate": 0
 }
 
 def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=1) -> bool:
@@ -91,10 +119,39 @@ def run_program(prog_path: str, input: str | bytes, mode: str = 'TEXT', timeout=
     if result.returncode in exit_codes.keys():
         # print(f'Exploit discovered: prog_name = {prog_path}, input = {input}, mode = {mode}')
         fuzzer_logger.critical(f'Exploit Return Code: {result.returncode}')
+        # statistics per file type
+        if file_type == FileType.JSON:
+            statistics_json["json_attempt"] += 1
+            statistics_json["json_success"] += 1
+            statistics_json["json_success_rate"] = statistics_json["json_success"] / statistics_json["json_attempt"] * 100
+            fuzzer_logger.info(f'Fuzzer_json success rate({statistics_json["json_success"]} out of {statistics_json["json_attempt"]} attempt): {statistics_json["json_success_rate"]}')
+        elif file_type == FileType.CSV:
+            statistics_csv["csv_attempt"] += 1
+            statistics_csv["csv_success"] += 1
+            statistics_csv["csv_success_rate"] = statistics_csv["csv_success"] / statistics_csv["csv_attempt"] * 100
+            fuzzer_logger.info(f'Fuzzer_csv success rate({statistics_csv["csv_success"]} out of {statistics_csv["csv_attempt"]} attempt): {statistics_csv["csv_success_rate"]}')
+        elif file_type == FileType.JPEG:
+            statistics_jpeg["jpeg_attempt"] += 1
+            statistics_jpeg["jpeg_success"] += 1
+            statistics_jpeg["jpeg_success_rate"] = statistics_jpeg["jpeg_success"] / statistics_jpeg["jpeg_attempt"] * 100
+            fuzzer_logger.info(f'Fuzzer_jpeg success rate({statistics_jpeg["jpeg_success"]} out of {statistics_jpeg["jpeg_attempt"]} attempt): {statistics_jpeg["jpeg_success_rate"]}')
+        elif file_type == FileType.TXT:
+            statistics_txt["txt_attempt"] += 1
+            statistics_txt["txt_success"] += 1
+            statistics_txt["txt_success_rate"] = statistics_txt["txt_success"] / statistics_txt["txt_attempt"] * 100
+            fuzzer_logger.info(f'Fuzzer_txt success rate({statistics_txt["txt_success"]} out of {statistics_txt["txt_attempt"]} attempt): {statistics_txt["txt_success_rate"]}')
+        elif file_type == FileType.XML:
+            statistics_xml["xml_attempt"] += 1
+            statistics_xml["xml_success"] += 1
+            statistics_xml["xml_success_rate"] = statistics_xml["xml_success"] / statistics_xml["xml_attempt"] * 100
+            fuzzer_logger.info(f'Fuzzer_xml success rate({statistics_xml["xml_success"]} out of {statistics_xml["xml_attempt"]} attempt): {statistics_xml["xml_success_rate"]}')
+
+        # statistics info in total
         statistics["fuzzer_attempt"] += 1
         statistics["fuzzer_success"] += 1
         statistics["fuzzer_success_rate"] = statistics["fuzzer_success"] / statistics["fuzzer_attempt"] * 100
         fuzzer_logger.info(f'Fuzzer success rate({statistics["fuzzer_success"]} out of {statistics["fuzzer_attempt"]} attempt): {statistics["fuzzer_success_rate"]}')
+
         return True
 
     statistics["fuzzer_attempt"] += 1
@@ -154,7 +211,7 @@ def determine_file_type(filepath: str) -> FileType:
                 Image.open(filepath)
                 return FileType.JPEG
             elif type == FileType.CSV:
-                file = open(filepath, 'r', newline='')                
+                file = open(filepath, 'r', newline='')
                 csv_reader = csv.DictReader(file)
                 data = list(csv_reader)
                 # print('data:', data)
@@ -164,7 +221,7 @@ def determine_file_type(filepath: str) -> FileType:
                 field_count = len(csv_reader.fieldnames)
                 if any(len(row) != field_count for row in data):
                     raise Exception
-                
+
                 # Check if there are no commas in the file
                 # This will be the case when there is only a single
                 if len(data[0].keys()) == 1:
@@ -180,7 +237,6 @@ def determine_file_type(filepath: str) -> FileType:
             continue
 
     return FileType.TXT
-        
 
 def run():
     for i, program in enumerate(programs):
@@ -209,7 +265,7 @@ def run():
                 file_input = read_txt_file(inputs[i])
             elif file_type == FileType.XML:
                 file_input = read_xml_file(inputs[i])
-            
+
             if file_input is None:
                 fuzzer_logger.critical(f"Couldn't read in file input for {inputs[i]} of file_type {file_input}")
                 break
@@ -254,7 +310,7 @@ def run():
                 fuzzer = txt_fuzz_processor(file_input, file_data_types)
             elif file_type == FileType.XML:
                 fuzzer = xml_fuzz_processor(file_input, file_data_types)
-            
+
             if fuzzer is None:
                 fuzzer_logger.critical(f"Couldn't create fuzzer for {inputs[i]}")
                 break
@@ -291,7 +347,7 @@ def run():
                     complete = True
                     # continue
                     break
-                
+
                 # 5) Convert mutated input into a format which can be input into binary
 
                 binary_input = None
@@ -300,14 +356,11 @@ def run():
                     binary_input = json.dumps(mod_input).encode()
                 elif file_type == FileType.CSV:
                     binary_input = write_csv_string(mod_input)
-                    # print('binay input', binary_input[:100])
                 elif file_type == FileType.JPEG:
                     binary_input = mod_input
                 elif file_type == FileType.TXT:
-                    # print('mod_input:', mod_input)
                     binary_input = write_binary_input(mod_input)
                 elif file_type == FileType.XML:
-                    # binary_input = write_xml_input(mod_input)
                     binary_input = mod_input
 
                 if binary_input is None:
@@ -316,11 +369,6 @@ def run():
                     break
                 else:
                     pass
-                    # if isinstance(binary_input, str) or isinstance(binary_input, bytes):
-                    #     fuzzer_logger.debug(f'Binary input: {binary_input[:20]}')
-                    # else:
-                    #     fuzzer_logger.debug(f'Binary input {binary_input}')
-                
 
                 bin_mode = 'TEXT'
 
@@ -334,7 +382,7 @@ def run():
                     bin_mode = 'BINARY'
                 elif file_type == FileType.XML:
                     bin_mode = 'BINARY'
-                
+
                 # fuzzer_logger.debug(f'Running program {program}...')
                 exploit_found = run_program(programs[i], binary_input, mode=bin_mode)
                 if exploit_found:
@@ -345,11 +393,16 @@ def run():
                     break
 
                 prev_mod_input = mod_input
-                
 
             if complete: break
 
 # The main entry point for execution
 if __name__ == "__main__":
     statistics = {key: 0 for key in statistics}
+    statistics_json = {key: 0 for key in statistics_json}
+    statistics_csv = {key: 0 for key in statistics_csv}
+    statistics_jpeg = {key: 0 for key in statistics_jpeg}
+    statistics_xml = {key: 0 for key in statistics_xml}
+    statistics_txt = {key: 0 for key in statistics_txt}
+
     run()

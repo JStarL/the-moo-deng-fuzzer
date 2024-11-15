@@ -165,7 +165,7 @@ def set_jpeg_meta_field(img, meta_key, meta_value):
     #     img.is_animated = meta_value
     # elif meta_key == "Frames in Image":
     #     img.n_frames = meta_value
-    
+
     # return img
 
     exif_data = img.getexif()

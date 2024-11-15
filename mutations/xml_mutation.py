@@ -50,7 +50,7 @@ def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
                 yield xml.tostring(root)
 
 
-def xml_nested_mutation(xml_content: bytes, max_depth: int = 2 ** 32) -> Iterator[bytes]:
+def xml_nested_mutation(xml_content: bytes, max_depth: int = 2 ** 15) -> Iterator[bytes]:
     try:
         root = xml.fromstring(xml_content)
     except xml.ParseError:
@@ -70,6 +70,8 @@ def xml_attr_mutation(xml_content: bytes) -> Iterator[bytes]:
         root = xml.fromstring(xml_content)
     except xml.ParseError:
         return
+
+    elements = list(root.iter())
 
     for el in root.iter():
         original_attrib = el.attrib.copy() if el.attrib else {}
@@ -99,20 +101,47 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
         # Use the element's tag if available, otherwise use the default payload
         text_to_mutate = el.text.encode() if el.text is not None else b''
 
-        for mutator in Mutators:
-            for mutation in mutator(text_to_mutate):
-                if isinstance(mutation, str) or isinstance(mutation, bytes):
-                    fuzzer_logger.debug(f'mutation: {mutation[:20]}')
+        gens = [mutator(text_to_mutate) for mutator in Mutators]
+        i = 0
+        while len(gens) > 0:
+            if i >= len(gens):
+                i = 0
+            
+            try:
+                mutation = next(gens[i])
+                fuzzer_logger.debug(f'mutation: {mutation[:20]}')
+            except StopIteration:
+                fuzzer_logger.debug(f'xml_text_mutation for {el.tag} = {text_to_mutate}: finished {gens[i]}')
+                gens.pop(i)
+                continue
 
-                try:
-                    # Attempt to decode as UTF-8
-                    el.text = mutation.decode('utf-8')
-                except UnicodeDecodeError:
-                    # Fallback to Base64 encoding if UTF-8 decoding fails
-                    el.text = base64.b64encode(mutation).decode('ascii')
+            try:
+                # Attempt to decode as UTF-8
+                el.text = mutation.decode('utf-8')
+            except UnicodeDecodeError:
+                # Fallback to Base64 encoding if UTF-8 decoding fails
+                el.text = base64.b64encode(mutation).decode('ascii')
 
-                # print(f'text to mutation: {mutation}')
-                yield xml.tostring(root)
+            # print(f'text to mutation: {mutation}')
+            yield xml.tostring(root)
+
+            i += 1
+
+
+        # for mutator in Mutators:
+        #     for mutation in mutator(text_to_mutate):
+        #         if isinstance(mutation, str) or isinstance(mutation, bytes):
+        #             fuzzer_logger.debug(f'mutation: {mutation[:20]}')
+
+        #         try:
+        #             # Attempt to decode as UTF-8
+        #             el.text = mutation.decode('utf-8')
+        #         except UnicodeDecodeError:
+        #             # Fallback to Base64 encoding if UTF-8 decoding fails
+        #             el.text = base64.b64encode(mutation).decode('ascii')
+
+        #         # print(f'text to mutation: {mutation}')
+        #         yield xml.tostring(root)
 
 
 def run_c_program_with_pdf(prog_path, pdf_data):

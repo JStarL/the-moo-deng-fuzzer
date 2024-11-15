@@ -1,24 +1,20 @@
 import logging
 import sys
 
-def logger_setup(log_type = None):
-    # if log_type == "DEBUG":
-    #     level = logging.DEBUG
-    # else:
-    #     level = logging.INFO
+def logger_setup(log_type = None): 
     level = logging.DEBUG
 
 
-    logging.basicConfig(format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s ',
+    if log_type == 'DEBUG':
+        logging.basicConfig(format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s ',
+                            datefmt='%d-%m-%y %I:%M:%S %p',
+                            level=level)
+    else:
+        logging.basicConfig(format='(%(asctime)s) %(levelname)s:%(message)s ',
                         datefmt='%d-%m-%y %I:%M:%S %p',
                         level=level)
 
     logger = logging.getLogger()
-    # log_file = logging.FileHandler('fuzzer.log')
-    # logger.addHandler(log_file)
-
-    # logger.setLevel(logging.INFO)
-
     
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(logging.Formatter('(%(asctime)s) %(levelname)s: %(message)s'))

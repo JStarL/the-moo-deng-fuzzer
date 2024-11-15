@@ -39,29 +39,14 @@ def xml_fuzz_processor(tree: xml.ElementTree, file_type_tree: xml.ElementTree) -
         xml_breadth_mutation,
         xml_nested_mutation,
     ]
-
     mutation_generators = [func(xml.tostring(tree.getroot())) for func in mutation_functions]
 
-    i = 0
-    while len(mutation_generators) > 0:
-        if i >= len(mutation_generators):
-            i = 0
-
-        try:
-            mutated_xml_bytes = next(mutation_generators[i])
-            yield mutated_xml_bytes
-        except StopIteration:
-            # fuzzer_logger.debug(f'finished {mutation_generators[i]} mutations')
-            mutation_generators.pop(i)
-            continue
-
-        i += 1
-    # while mutation_generators:
-    #     for i, generator in enumerate(mutation_generators):
-    #         try:
-    #             mutated_xml_bytes = next(generator)
-    #             yield mutated_xml_bytes
-    #         except StopIteration:
-    #             print('generator = ', generator)
-    #             mutation_generators.pop(i)
+    while mutation_generators:
+        for i, generator in enumerate(mutation_generators):
+            try:
+                mutated_xml_bytes = next(generator)
+                yield mutated_xml_bytes
+            except StopIteration:
+                # print('generator = ', generator)
+                mutation_generators.pop(i)
 

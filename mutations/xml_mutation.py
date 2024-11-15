@@ -8,6 +8,7 @@ from mutations.format_str import data_injection, boundary_value_injection, forma
 from mutations.integer_mutations import to_str, to_hex, nearby_special_intbytes
 from mutations.kv_mutations import del_keys, add_keys, update_keys, update_values
 import base64
+from logger import fuzzer_logger
 
 Mutators = [
     format_injection,
@@ -49,19 +50,15 @@ def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
                 yield xml.tostring(root)
 
 
-def xml_nested_mutation(xml_content: bytes, max_depth: int = 2 ** 32) -> Iterator[bytes]:
+def xml_nested_mutation(xml_content: bytes) -> Iterator[bytes]:
     try:
         root = xml.fromstring(xml_content)
     except xml.ParseError:
         return
-
-    nested_xml = "%n" * 2 ** 10
-
-    for idx in range(1, max_depth + 1):
-        nested_xml = f"<{idx}>{nested_xml}</{idx}>"
-
-        if idx % 100000 == 0:
-            yield nested_xml.encode()
+    for i in range(len(root)):
+        for _ in range(512):
+            root.append(root[i])
+            yield xml.tostring(root)
 
 
 def xml_attr_mutation(xml_content: bytes) -> Iterator[bytes]:
@@ -93,14 +90,16 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
     except xml.ParseError:
         return
     for el in root.iter():
-        # print(f'\ntag: {el.tag}')
+        fuzzer_logger.debug(f'xml_text_mutation: tag = {el.tag}')
 
         # Use the element's tag if available, otherwise use the default payload
         text_to_mutate = el.text.encode() if el.text is not None else b''
 
         for mutator in Mutators:
             for mutation in mutator(text_to_mutate):
-                # print(f'mutation: {mutation}')
+                if isinstance(mutation, str) or isinstance(mutation, bytes):
+                    fuzzer_logger.debug(f'mutation: {mutation[:20]}')
+
                 try:
                     # Attempt to decode as UTF-8
                     el.text = mutation.decode('utf-8')
@@ -142,8 +141,8 @@ def load_and_mutate_xml(prog_path, file_path):
 
         # Define mutation functions and their descriptions
         mutation_functions = [
-            ("tag", xml_tag_mutation),
-            ("attribute", xml_attr_mutation),
+            # ("tag", xml_tag_mutation),
+            # ("attribute", xml_attr_mutation),
             ("text", xml_text_mutation),
             # ("nest", xml_nested_mutation),
         ]
@@ -153,7 +152,7 @@ def load_and_mutate_xml(prog_path, file_path):
             for mutation_index, mutated_xml_data in enumerate(mutation_func(xml_content)):
 
                 result = run_c_program_with_pdf(prog_path, mutated_xml_data)
-                # print(mutated_xml_data.decode())
+                print(mutated_xml_data.decode())
                 exit_codes = {
                     -11: 'segfault',
                     -6: 'abort',
@@ -178,6 +177,6 @@ if __name__ == "__main__":
     # input_file = 'xml2.txt'  # Path to the input XML file
     # load_and_mutate_xml(prog_path, input_file)
 
-    prog_path = './xml1'  # Path to the compiled C program
-    input_file = 'xml1.txt'  # Path to the input XML file
+    prog_path = './xml3'  # Path to the compiled C program
+    input_file = 'xml0.txt'  # Path to the input XML file
     load_and_mutate_xml(prog_path, input_file)

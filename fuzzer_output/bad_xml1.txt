@@ -1,60 +1,17 @@
 <html>
-
-
-
-
-<head>
-
-
-
-
-
-
-
-
-<link href="http://somewebsite.com" />
+    <head>
+        <link href="http://somewebsite.com" />
     </head>
     <body>
-
-
-
-
-
-
-
-
-<h1>I'm
-not
-a
-web
-developer.</h1>
+        <h1>I'm not a web developer.</h1>
     </body>
 
-    <div id="-8796093022208">
-
-
-
-
-
-
-
-
-<a href="%hnhttp://google.com">Here
-is
-some
-link...</a>
+    <div id="#lol">
+        <a href="%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%lln%llnhttp://google.com">Here is some link...</a>
     </div>
 
 
     <tail>
-
-
-
-
-
-
-
-
-<a%32767x href="%hnhttp://bing.com">Footer link%32767x</a%32767x>
+        <a href="http://bing.com">Footer link</a>
     </tail>
 </html>

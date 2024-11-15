@@ -87,7 +87,7 @@ def field_fuzzer(field_type: FieldType, field_name: str, field_value: any) -> Ge
         else:
             field_value_mod = field_value
 
-        fuzzers.append(random_combined_injection(field_value_mod))
+        # fuzzers.append(random_combined_injection(field_value_mod))
         fuzzers.append(format_injection(field_value_mod))
         fuzzers.append(data_injection(field_value_mod))
         fuzzers.append(long_format_specifier(field_value_mod))

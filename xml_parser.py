@@ -51,7 +51,7 @@ def xml_fuzz_processor(tree: xml.ElementTree, file_type_tree: xml.ElementTree) -
             mutated_xml_bytes = next(mutation_generators[i])
             yield mutated_xml_bytes
         except StopIteration:
-            fuzzer_logger.debug(f'finished {mutation_generators[i]} mutations')
+            # fuzzer_logger.debug(f'finished {mutation_generators[i]} mutations')
             mutation_generators.pop(i)
             continue
 

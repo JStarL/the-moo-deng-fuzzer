@@ -179,16 +179,18 @@ These mutations inject common format specifiers, long format strings, and bounda
 
 ### Logger diagram
 
+The following diagram describes the structure of the logging mechanism used in this fuzzer:
+
 ![logger_diagram](./logger%20diagram.png)
-`logger.py` : Create and set up the log file with configuration depending on sys.argv (log file flag type)
 
-`fuzzer.log` : stored log file for the fuzzer
+During fuzzing,
 
-`harness.py` : creates log and stores it in fuzzer.log file
+* `logger.py` sets up the log file, `fuzzer.log`, with configuration depending on `sys.argv` (log file flag type), and
+* `harness.py` records the log depending on event type (log levels with critical, debug and so on) during fuzzing and prompts it as stdout.
 
 ### Details of Log File format
 
-```
+```python
 format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s
 ```
 

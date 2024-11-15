@@ -162,6 +162,28 @@ Since a process' memory is not entirely copied upon forking, but instead being c
 
 It is not conceptually difficult; the shim itself could be something that, say, wraps around `fgets()` and other input-related functions and calls the forkserver to wait. The difficulty lies in writing the shim in assembly. In the end, we end up choosing to forgo this due to time constraints.
 
+# Code coverage
+
+The implementation of a code coverage tracking utility can be broken down into two parts, namely
+
+* finding all the execution paths that exists in the binary, and
+* finding which execution paths were taken throughout the fuzzing process.
+
+## Finding all the execution paths
+
+To find all the possible execution paths, we used the [r2pipe](https://book.rada.re/scripting/r2pipe.html) library to interact with [radare2](https://rada.re/n/), allowing us to extract information regarding all of the basic blocks in a given function. This includes
+
+* the address where it jumps to, if an *unconditional* jump exists, or
+* an address where it jumps to if a condition succeeds and another if it fails, if a *conditional* jump exists.
+
+This allows us to reconstruct the control flow graph of a given function. Extending this to the entire program entails recursively repeating this process on any function the current function calls.
+
+With this graph, we can find 'dead ends', *i.e.* vertices without any outward edges, and perform a depth-first search to find all the possible paths that can be taken from the starting block to these dead ends, which would yield us all the possible execution paths.
+
+## Finding the paths taken during fuzzing
+
+This is somewhat more challenging, especially when taking the execution time into account. Our planned approach was to attach instrumentation into the running process, either directly with `ptrace()` or by leveraging GDB or radare2. We could then insert a breakpoint at the start of every building block that triggers a logging mechanism to record which blocks were visited during execution. This, however, introduces the overhead incurred by these breakpoints, as it would slow down execution by nature.
+
 # Bugs that can be found using moo-deng fuzzer
 
 * buffer overflow
@@ -180,4 +202,4 @@ It is not conceptually difficult; the shim itself could be something that, say, 
 
 **Memory Capture**
 
-* Implement a forkserver to avoid
+* Implement a forkserver to avoid the overhead of `execve()`

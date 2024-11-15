@@ -158,6 +158,8 @@ The idea of a forkserver originated from [american fuzzy lop](https://lcamtuf.bl
 * inject a shim into the target binary, which would stop the execution at some arbitrary point (*e.g.* `main()`), after which it would
 * wait for a signal from the fuzzer, upon which it would fork itself.
 
+Since a process' memory is not entirely copied upon forking, but instead being copy-on-write, the overhead of this ends up being smaller than that of `execve()`.
+
 It is not conceptually difficult; the shim itself could be something that, say, wraps around `fgets()` and other input-related functions and calls the forkserver to wait. The difficulty lies in writing the shim in assembly. In the end, we end up choosing to forgo this due to time constraints.
 
 # Bugs that can be found using moo-deng fuzzer
@@ -176,4 +178,6 @@ It is not conceptually difficult; the shim itself could be something that, say, 
 
 **Harness**
 
-**Memory Capture????**
+**Memory Capture**
+
+* Implement a forkserver to avoid

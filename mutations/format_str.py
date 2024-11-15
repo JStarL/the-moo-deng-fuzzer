@@ -22,8 +22,11 @@ def format_injection(data: bytes) -> Iterator[bytes]:
     """
     Inject common format specifiers (e.g., %s, %d, %x) into the byte sequence.
     """
+    if not isinstance(data, bytes):
+        data = str(data).encode()
     for spec in format_specifiers:
         # yield data + b"" + spec
+        yield spec
         yield spec + data
 
 
@@ -31,7 +34,10 @@ def long_format_specifier(data: bytes) -> Iterator[bytes]:
     """
     Inject long format specifiers (e.g., %1000x) to test edge cases.
     """
+    if not isinstance(data, bytes):
+        data = str(data).encode()
     for spec in long_specs:
+        yield spec
         yield spec + data
 
 
@@ -39,6 +45,8 @@ def boundary_value_injection(data: bytes) -> Iterator[bytes]:
     """
     Inject boundary values (e.g., \x00, \xFF) into the byte sequence.
     """
+    if not isinstance(data, bytes):
+        data = str(data).encode()
     for boundary in BOUNDARY_CHAR_STRINGS:
         boundary_bytes = boundary.encode()
         yield boundary_bytes

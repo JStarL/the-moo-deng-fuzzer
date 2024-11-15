@@ -33,12 +33,11 @@ def process_xml(tree: xml.ElementTree):
 def xml_fuzz_processor(tree: xml.ElementTree, file_type_tree: xml.ElementTree) -> Iterator[xml.ElementTree]:
     # Define mutation functions and their descriptions
     mutation_functions = [
-        xml_nested_mutation,
         xml_text_mutation,
         xml_attr_mutation,
         xml_tag_mutation,
-        xml_breadth_mutation
-
+        xml_breadth_mutation,
+        xml_nested_mutation,
     ]
 
     mutation_generators = [func(xml.tostring(tree.getroot())) for func in mutation_functions]

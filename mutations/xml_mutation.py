@@ -31,7 +31,6 @@ def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
         return
 
     for el in root.iter():
-        # print(f'tag: {el.tag}')
 
         # Use the element's tag if available, otherwise use the default payload
         tag_to_mutate = el.tag.encode() if el.tag is not None else b''
@@ -46,24 +45,14 @@ def xml_tag_mutation(xml_content: bytes) -> Iterator[bytes]:
                     # Fallback to Base64 encoding if UTF-8 decoding fails
                     el.tag = base64.b64encode(mutation).decode('ascii')
 
-
-                # print(f'mutation: {mutation}')
                 yield xml.tostring(root)
 
 
-def xml_nested_mutation(xml_content: bytes, max_depth: int = 2 ** 15) -> Iterator[bytes]:
-    try:
-        root = xml.fromstring(xml_content)
-    except xml.ParseError:
-        return
-
-    nested_xml = "%n" * 2 ** 10
+def xml_nested_mutation(xml_content: bytes, max_depth: int = 1024) -> Iterator[bytes]:
 
     for idx in range(max_depth):
-        nested_xml = f"<{idx}>{nested_xml}</{idx}>"
-
-        if idx % 100000 == 0:
-            yield nested_xml.encode()
+        nested_xml = f"<{idx}>{idx}</{idx}>"
+        yield nested_xml.encode()
 
 def xml_breadth_mutation(xml_content: bytes) -> Iterator[bytes]:
     try:
@@ -138,20 +127,4 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
             yield xml.tostring(root)
 
             i += 1
-
-
-        # for mutator in Mutators:
-        #     for mutation in mutator(text_to_mutate):
-        #         if isinstance(mutation, str) or isinstance(mutation, bytes):
-        #             fuzzer_logger.debug(f'mutation: {mutation[:20]}')
-
-        #         try:
-        #             # Attempt to decode as UTF-8
-        #             el.text = mutation.decode('utf-8')
-        #         except UnicodeDecodeError:
-        #             # Fallback to Base64 encoding if UTF-8 decoding fails
-        #             el.text = base64.b64encode(mutation).decode('ascii')
-
-        #         # print(f'text to mutation: {mutation}')
-        #         yield xml.tostring(root)
 

@@ -5,7 +5,8 @@ import random
 from utils import FieldType, determine_input_type, field_fuzzer
 from typing import Iterator
 from mutations.bit_flip import byte_flip, random_partial_flip, inject_special_values
-from mutations.keywords import repeat_keyword_inplace, delete_keyword
+from mutations.keywords import repeat_keyword_inplace, delete_keyword, repeat_keyword_end_bytes
+from logger import fuzzer_logger
 
 MARKERS = {
     "Image Start": 0xFFD8.to_bytes(2, byteorder='big'),
@@ -80,13 +81,14 @@ def mutate_region(img_bytes: bytes, start_marker: bytes, end_marker: bytes) -> I
             mutated_region = next(byte_flipper)
             yield before_region + start_marker + mutated_region + end_marker + after_region
     except StopIteration:
-        print(f'Tried all byte flip mutations for jpeg')
+        fuzzer_logger.debug(f'Tried all byte flip mutations for jpeg')
 
 def edit_markers(img_bytes: bytes) -> Iterator[bytes]:
 
     mutators = []
     mutators.append(repeat_keyword_inplace(img_bytes, list(MARKERS.values())))
     mutators.append(delete_keyword(img_bytes, list(MARKERS.values())))
+    mutators.append(repeat_keyword_end_bytes(img_bytes, list(MARKERS.values())))
 
     i = 0
     while len(mutators) > 0:
@@ -123,7 +125,7 @@ def jpeg_fuzz_processor(img, img_exif_types):
             mod_img_bin = next(mutators[i])
             yield mod_img_bin
         except StopIteration:
-            print(f'Finished index {i}')
+            fuzzer_logger.debug(f'Finished index {i}')
             mutators.pop(i)
             continue
 
@@ -187,14 +189,6 @@ def read_jpg_file(filepath):
         img_bin = f.read()
         img = Image.open(io.BytesIO(img_bin))
 
-
-        # img_byte_arr = io.BytesIO()
-        # img.save(img_byte_arr, format=img.format)
-        # img_binary_data = img_byte_arr.getvalue()
-
-        # first_10_bytes = img_binary_data[-10:]
-        # print(hex(int.from_bytes(first_10_bytes, byteorder='big')))
-
         return img
 
 def process_jpeg(img):
@@ -233,44 +227,4 @@ def jpeg_fuzz_processor_old(img, img_exif_types):
             keys_list.pop(i)
             i -= 1
 
-        # print('got here')
         i += 1
-
-# def jpeg_fuzz_processor_random(img, noise_percentage=0.01):
-    
-#     # Convert image to RGB mode if it's not already
-#     if img.mode != 'RGB':
-#         img = img.convert('RGB')
-    
-#     # Save the image to a bytes buffer
-#     buffer = io.BytesIO()
-#     img.save(buffer, format='JPEG')
-#     image_bytes = buffer.getvalue()
-    
-#     # Find the start of the image data (after SOI and APP0 markers)
-#     start_index = image_bytes.index(b'\xFF\xDA')  # Start of Scan marker
-    
-#     # Extract the data section
-#     data_section = bytearray(image_bytes[start_index:])
-    
-#     # Calculate number of bytes to flip
-#     total_bytes = len(data_section)
-#     bytes_to_flip = int(total_bytes * noise_percentage)
-    
-#     # Generate random XOR mask
-#     xor_mask = bytearray(random.getrandbits(8) for _ in range(bytes_to_flip))
-    
-#     # Randomly select bytes to flip and apply XOR
-#     for i in range(bytes_to_flip):
-#         byte_index = random.randint(0, total_bytes - 1)
-#         data_section[byte_index] ^= xor_mask[i]
-    
-#     # Reconstruct the image
-#     modified_image_bytes = image_bytes[:start_index] + data_section
-    
-#     # Save the modified image
-#     with open(output_path, 'wb') as f:
-#         f.write(modified_image_bytes)
-
-#     print(f"Noise introduced and image saved to {output_path}")
-

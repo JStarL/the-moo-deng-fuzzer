@@ -104,6 +104,8 @@ INJECTION_PAYLOADS: list[bytes] = list({
 BOUNDARY_VALUES = list({
     b"",
     b" ",  # Empty string
+    b" " * 1024,  # Empty string
+    b" " * 65536,  # Empty string
     b"A" * 1024,  # Large string to test buffer limits
     b"A" * 65536,  # Extremely large string for memory handling
     b"\x00",  # Null byte (often terminates strings in C-based languages)

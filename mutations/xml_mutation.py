@@ -93,14 +93,14 @@ def xml_text_mutation(xml_content: bytes) -> Iterator[bytes]:
     except xml.ParseError:
         return
     for el in root.iter():
-        print(f'\ntag: {el.tag}')
+        # print(f'\ntag: {el.tag}')
 
         # Use the element's tag if available, otherwise use the default payload
         text_to_mutate = el.text.encode() if el.text is not None else b''
 
         for mutator in Mutators:
             for mutation in mutator(text_to_mutate):
-                print(f'mutation: {mutation}')
+                # print(f'mutation: {mutation}')
                 try:
                     # Attempt to decode as UTF-8
                     el.text = mutation.decode('utf-8')
@@ -142,8 +142,8 @@ def load_and_mutate_xml(prog_path, file_path):
 
         # Define mutation functions and their descriptions
         mutation_functions = [
-            # ("tag", xml_tag_mutation),
-            # ("attribute", xml_attr_mutation),
+            ("tag", xml_tag_mutation),
+            ("attribute", xml_attr_mutation),
             ("text", xml_text_mutation),
             # ("nest", xml_nested_mutation),
         ]
@@ -153,7 +153,7 @@ def load_and_mutate_xml(prog_path, file_path):
             for mutation_index, mutated_xml_data in enumerate(mutation_func(xml_content)):
 
                 result = run_c_program_with_pdf(prog_path, mutated_xml_data)
-                print(mutated_xml_data.decode())
+                # print(mutated_xml_data.decode())
                 exit_codes = {
                     -11: 'segfault',
                     -6: 'abort',
@@ -178,6 +178,6 @@ if __name__ == "__main__":
     # input_file = 'xml2.txt'  # Path to the input XML file
     # load_and_mutate_xml(prog_path, input_file)
 
-    prog_path = './xml3'  # Path to the compiled C program
-    input_file = 'xml0.txt'  # Path to the input XML file
+    prog_path = './xml1'  # Path to the compiled C program
+    input_file = 'xml1.txt'  # Path to the input XML file
     load_and_mutate_xml(prog_path, input_file)

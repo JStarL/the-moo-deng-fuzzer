@@ -179,16 +179,18 @@ These mutations inject common format specifiers, long format strings, and bounda
 
 ### Logger diagram
 
+The following diagram describes the structure of the logging mechanism used in this fuzzer:
+
 ![logger_diagram](./logger%20diagram.png)
-`logger.py` : Create and set up the log file with configuration depending on sys.argv (log file flag type)
 
-`fuzzer.log` : stored log file for the fuzzer
+During fuzzing,
 
-`harness.py` : creates log and stores it in fuzzer.log file
+* `logger.py` sets up the log file, `fuzzer.log`, with configuration depending on `sys.argv` (log file flag type), and
+* `harness.py` records the log depending on event type (log levels with critical, debug, and so on) during fuzzing and prompts it as stdout.
 
 ### Details of Log File format
 
-```
+```python
 format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s
 ```
 
@@ -198,11 +200,11 @@ format='(%(asctime)s) %(levelname)s:%(pathname)s-%(lineno)d:%(message)s
 * **%(lineno)d**: line number where the log is created
 * **%(message)s**: detailed log message
 
-
 # Fuzzer statistics details
-`harness.py`
 
-```
+We keep information pertaining to the statistics in the following global dictionary found in `harness.py`:
+
+```python
 statistics = {
      # Statistics of fuzzer - fuzzer statistics variables
     "fuzzer_attempt": 0,
@@ -210,12 +212,12 @@ statistics = {
     "fuzzer_success_rate": 0
 }
 ```
-**^ Structure of python dictionary for fuzzer statistics**
 
-We compare the number of crashes to the number of attempts made by the fuzzer to obtain the current hit rate.
+There are six identical dictionaries storing the statistics for the five different file types, along with one unified statistics.
+
+These values are then used to compare the number of crashes to the number of attempts made by the fuzzer, yielding the current hit rate.
+
 Every time we successfully find a valid crash due to vulnerability, we will put this fuzzer success rate on the stdout so that user can follow the track of the process.
-
-
 
 # Memory resetting
 
@@ -287,13 +289,17 @@ There also exists a library called `graph_tool` (without an 's'), which caused s
 * Adding vulnerability type and file extension type to log message was our plan, but couldn't finish it due to time constraint.
 
 **Mutation**
+
 * integer overflow/underflow is not detectable in our fuzzer
 
 **Harness**
+
 * (Statistics part) Could’ve made visualisation of the statistics, Potential of race conditions on counting numbers in statistics dictionary if we use multithread
 
 **Memory Resetting**
+
 * mentioned it in previous section
 
 **Implementation of PDF + ELF**
+
 * due to time constraint, we couldn't implement it but we have a scratch of pdf fuzzer implementation

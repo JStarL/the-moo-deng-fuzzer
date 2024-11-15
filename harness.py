@@ -18,32 +18,31 @@ from logger import fuzzer_logger
 programs = [
     # './binaries/json1',
     # './binaries/json2',
+    './binaries/my_json'
     # './binaries/csv1',
     # './binaries/csv2',
     # './binaries/jpg1',
     # './binaries/plaintext1',
     # './binaries/plaintext2',
     # './binaries/plaintext3',
-    './binaries/xml1',
+    # './binaries/xml1',
     # './binaries/xml2',
     # './binaries/xml3',
 ]
 inputs = [
     # './example_inputs/json1.txt',
     # './example_inputs/json2.txt',
+    './example_inputs/my_json.txt'
     # './example_inputs/csv1.txt',
     # './example_inputs/csv2.txt'
     # './example_inputs/jpg1.txt',
     # './example_inputs/plaintext1.txt',
     # './example_inputs/plaintext2.txt',
     # './example_inputs/plaintext3.txt',
-    './example_inputs/xml1.txt',
+    # './example_inputs/xml1.txt',
     # './example_inputs/xml2.txt',
     # './example_inputs/xml3.txt',
 ]
-
-# programs = ['/binaries/jpg1']
-# inputs = ['example_inputs/jpg1.txt']
 
 class FileType(Enum):
     JSON = 'json'
@@ -278,7 +277,7 @@ def run():
                 binary_input = None
 
                 if file_type == FileType.JSON:
-                    binary_input = json.dumps(mod_input)
+                    binary_input = json.dumps(mod_input).encode()
                 elif file_type == FileType.CSV:
                     binary_input = write_csv_string(mod_input)
                 elif file_type == FileType.JPEG:
@@ -304,7 +303,7 @@ def run():
                 bin_mode = 'TEXT'
 
                 if file_type == FileType.JSON:
-                    bin_mode = 'TEXT'
+                    bin_mode = 'BINARY'
                 elif file_type == FileType.CSV:
                     bin_mode = 'TEXT'
                 elif file_type == FileType.JPEG:
